@@ -3,7 +3,7 @@
 @section('content')
     @auth
         <div class="bg-white border border-gray-200 rounded-lg p-4 mb-8">
-            <form method="POST" action="{{ route('posts.store') }}" enctype="multipart/form-data">
+            <form method="POST" action="{{ route('moments.store') }}" enctype="multipart/form-data">
                 @csrf
                 <div class="mb-3">
                     <textarea
@@ -32,35 +32,35 @@
         </div>
     @endauth
 
-    @forelse ($posts as $post)
+    @forelse ($moments as $moment)
         <article class="bg-white border border-gray-200 rounded-lg p-4 mb-4">
             <div class="flex items-center justify-between mb-2">
                 <div class="flex items-center gap-2">
-                    <span class="text-gray-400 text-xs">{{ $post->created_at->diffForHumans() }}</span>
+                    <span class="text-gray-400 text-xs">{{ $moment->created_at->diffForHumans() }}</span>
                 </div>
-                @can('update', $post)
+                @can('update', $moment)
                     <div class="flex items-center gap-3 text-sm">
-                        <a href="{{ route('posts.edit', $post) }}" class="text-gray-500 hover:text-gray-900">Edit</a>
-                        <form method="POST" action="{{ route('posts.destroy', $post) }}">
+                        <a href="{{ route('moments.edit', $moment) }}" class="text-gray-500 hover:text-gray-900">Edit</a>
+                        <form method="POST" action="{{ route('moments.destroy', $moment) }}">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="text-red-500 hover:text-red-700"
-                                onclick="return confirm('Delete this post?')">Delete</button>
+                                onclick="return confirm('Delete this moment?')">Delete</button>
                         </form>
                     </div>
                 @endcan
             </div>
 
-            @if ($post->imageUrl())
-                <img src="{{ $post->imageUrl() }}" alt="Post image" class="w-full rounded-md mb-3 object-cover max-h-96">
+            @if ($moment->imageUrl())
+                <img src="{{ $moment->imageUrl() }}" alt="Moment image" class="w-full rounded-md mb-3 object-cover max-h-96">
             @endif
 
             <div class="prose prose-sm text-gray-800">
-                {!! $post->renderedBody() !!}
+                {!! $moment->renderedBody() !!}
             </div>
         </article>
     @empty
-        <p class="text-center text-gray-400 py-16">No posts yet. Be the first to share something!</p>
+        <p class="text-center text-gray-400 py-16">No moments yet. Be the first to share something!</p>
     @endforelse
 @endsection
 

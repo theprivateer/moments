@@ -1,18 +1,18 @@
 <?php
 
 use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\PostController;
+use App\Http\Controllers\MomentController;
 use Illuminate\Support\Facades\Route;
 
 // Public timeline
-Route::get('/', [PostController::class, 'index'])->name('posts.index');
+Route::get('/', [MomentController::class, 'index'])->name('moments.index');
 
-// Authenticated post actions
+// Authenticated moment actions
 Route::middleware('auth')->group(function () {
-    Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
-    Route::get('/posts/{post}/edit', [PostController::class, 'edit'])->name('posts.edit');
-    Route::patch('/posts/{post}', [PostController::class, 'update'])->name('posts.update');
-    Route::delete('/posts/{post}', [PostController::class, 'destroy'])->name('posts.destroy');
+    Route::post('/moments', [MomentController::class, 'store'])->name('moments.store');
+    Route::get('/moments/{moment}/edit', [MomentController::class, 'edit'])->name('moments.edit');
+    Route::patch('/moments/{moment}', [MomentController::class, 'update'])->name('moments.update');
+    Route::delete('/moments/{moment}', [MomentController::class, 'destroy'])->name('moments.destroy');
     Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
 });
 

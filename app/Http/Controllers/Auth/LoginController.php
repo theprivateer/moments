@@ -21,7 +21,7 @@ class LoginController extends Controller
         if (Auth::attempt($request->validated(), $request->boolean('remember'))) {
             $request->session()->regenerate();
 
-            return redirect()->route('posts.index');
+            return redirect()->route('moments.index');
         }
 
         return back()->withErrors([
@@ -36,6 +36,6 @@ class LoginController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('posts.index');
+        return redirect()->route('moments.index');
     }
 }

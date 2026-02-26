@@ -5,7 +5,7 @@ namespace App\Actions;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
-class ResolvePostImageAction
+class ResolveMomentImageAction
 {
     public function __invoke(?string $currentPath, ?UploadedFile $newFile, bool $remove = false): ?string
     {
@@ -19,7 +19,7 @@ class ResolvePostImageAction
                 Storage::disk('public')->delete($currentPath);
             }
 
-            $currentPath = $newFile->store('posts', 'public');
+            $currentPath = $newFile->store('moments', 'public');
         }
 
         return $currentPath;
