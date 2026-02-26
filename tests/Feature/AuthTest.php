@@ -28,29 +28,6 @@ it('rejects a wrong password and keeps the user as a guest', function () {
     $this->assertGuest();
 });
 
-it('lets a guest register', function () {
-    $this->post('/register', [
-        'name' => 'Alice',
-        'email' => 'alice@example.com',
-        'password' => 'secret1234',
-        'password_confirmation' => 'secret1234',
-    ])->assertRedirect('/');
-
-    $this->assertAuthenticated();
-    $this->assertDatabaseHas('users', ['email' => 'alice@example.com']);
-});
-
-it('requires password confirmation to register', function () {
-    $this->post('/register', [
-        'name' => 'Bob',
-        'email' => 'bob@example.com',
-        'password' => 'secret1234',
-        'password_confirmation' => 'different',
-    ])->assertSessionHasErrors('password');
-
-    $this->assertGuest();
-});
-
 it('lets an authenticated user log out', function () {
     $user = User::factory()->create();
 

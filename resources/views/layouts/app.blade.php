@@ -20,7 +20,6 @@
                     </form>
                 @else
                     <a href="{{ route('login') }}" class="text-gray-600 hover:text-gray-900">Log in</a>
-                    <a href="{{ route('register') }}" class="bg-gray-900 text-white px-3 py-1.5 rounded-md hover:bg-gray-700">Register</a>
                 @endauth
             </nav>
         </div>

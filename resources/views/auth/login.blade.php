@@ -50,9 +50,5 @@
             </form>
         </div>
 
-        <p class="text-center text-sm text-gray-500 mt-4">
-            No account yet?
-            <a href="{{ route('register') }}" class="text-gray-900 underline">Register</a>
-        </p>
     </div>
 @endsection
