@@ -13,7 +13,6 @@
 
             <nav class="flex items-center gap-4 text-sm">
                 @auth
-                    <span class="text-gray-500">{{ auth()->user()->name }}</span>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <button type="submit" class="text-gray-600 hover:text-gray-900">Log out</button>

@@ -36,7 +36,6 @@
         <article class="bg-white border border-gray-200 rounded-lg p-4 mb-4">
             <div class="flex items-center justify-between mb-2">
                 <div class="flex items-center gap-2">
-                    <span class="font-medium text-sm">{{ $post->user->name }}</span>
                     <span class="text-gray-400 text-xs">{{ $post->created_at->diffForHumans() }}</span>
                 </div>
                 @can('update', $post)
