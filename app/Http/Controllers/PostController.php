@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\ResolvePostImageAction;
+use App\Http\Requests\StorePostRequest;
+use App\Http\Requests\UpdatePostRequest;
 use App\Models\Post;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class PostController extends Controller
@@ -16,22 +19,14 @@ class PostController extends Controller
         return view('posts.index', compact('posts'));
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(StorePostRequest $request, ResolvePostImageAction $resolveImage): RedirectResponse
     {
-        $validated = $request->validate([
-            'body' => 'required|string|max:10000',
-            'image' => 'nullable|image|max:2048',
-        ]);
-
-        $imagePath = null;
-        if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('posts', 'public');
-        }
+        $validated = $request->validated();
 
         Post::create([
             'user_id' => $request->user()->id,
             'body' => $validated['body'],
-            'image_path' => $imagePath,
+            'image_path' => $resolveImage(null, $request->file('image')),
         ]);
 
         return redirect()->route('posts.index');
@@ -44,46 +39,30 @@ class PostController extends Controller
         return view('posts.edit', compact('post'));
     }
 
-    public function update(Request $request, Post $post): RedirectResponse
+    public function update(UpdatePostRequest $request, Post $post, ResolvePostImageAction $resolveImage): RedirectResponse
     {
         $this->authorize('update', $post);
 
-        $validated = $request->validate([
-            'body' => 'required|string|max:10000',
-            'image' => 'nullable|image|max:2048',
-            'remove_image' => 'nullable|boolean',
-        ]);
-
-        $imagePath = $post->image_path;
-
-        if ($request->boolean('remove_image')) {
-            if ($imagePath) {
-                \Illuminate\Support\Facades\Storage::disk('public')->delete($imagePath);
-            }
-            $imagePath = null;
-        }
-
-        if ($request->hasFile('image')) {
-            if ($imagePath) {
-                \Illuminate\Support\Facades\Storage::disk('public')->delete($imagePath);
-            }
-            $imagePath = $request->file('image')->store('posts', 'public');
-        }
+        $validated = $request->validated();
 
         $post->update([
             'body' => $validated['body'],
-            'image_path' => $imagePath,
+            'image_path' => $resolveImage(
+                $post->image_path,
+                $request->file('image'),
+                (bool) ($validated['remove_image'] ?? false),
+            ),
         ]);
 
         return redirect()->route('posts.index');
     }
 
-    public function destroy(Request $request, Post $post): RedirectResponse
+    public function destroy(Post $post): RedirectResponse
     {
         $this->authorize('delete', $post);
 
         if ($post->image_path) {
-            \Illuminate\Support\Facades\Storage::disk('public')->delete($post->image_path);
+            Storage::disk('public')->delete($post->image_path);
         }
 
         $post->delete();

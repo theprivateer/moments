@@ -14,7 +14,7 @@
                     id="body"
                     name="body"
                     rows="6"
-                    class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 resize-none"
+                    class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-hidden focus:ring-2 focus:ring-gray-400 resize-none"
                 >{{ old('body', $post->body) }}</textarea>
                 @error('body')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
