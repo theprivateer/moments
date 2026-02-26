@@ -9,7 +9,8 @@ A personal micro-blog for publishing short posts to a public timeline. Built wit
 - **Single-author** — one user account owns the blog
 - **Post management** — create, edit, and delete posts when logged in
 
-> [!NOTE] I am intentionally using **Claude Code** to help build and maintain this project as an exploration of using AI coding assistants. I have chosen this project as it is a reimagining of [an idea I had in early 2017](https://github.com/theprivateer/shortform), so the spec is fairly well documented.
+> [!NOTE]
+> I am intentionally using **Claude Code** to help build and maintain this project as an exploration of using AI coding assistants. I have chosen this project as it is a reimagining of [an idea I had in early 2017](https://github.com/theprivateer/shortform), so the spec is fairly well documented.
 
 ## Getting Started
 
