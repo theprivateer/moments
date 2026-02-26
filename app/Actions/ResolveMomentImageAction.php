@@ -7,21 +7,27 @@ use Illuminate\Support\Facades\Storage;
 
 class ResolveMomentImageAction
 {
-    public function __invoke(?string $currentPath, ?UploadedFile $newFile, bool $remove = false): ?string
-    {
+    public function __invoke(
+        ?string $currentPath,
+        ?string $currentDisk,
+        ?UploadedFile $newFile,
+        bool $remove = false,
+    ): array {
         if ($remove && $currentPath) {
-            Storage::disk('public')->delete($currentPath);
+            Storage::disk($currentDisk)->delete($currentPath);
             $currentPath = null;
         }
 
+        $disk = config('moments.image_disk');
+
         if ($newFile) {
             if ($currentPath) {
-                Storage::disk('public')->delete($currentPath);
+                Storage::disk($currentDisk)->delete($currentPath);
             }
 
-            $currentPath = $newFile->store('moments', 'public');
+            $currentPath = $newFile->store('moments', $disk);
         }
 
-        return $currentPath;
+        return ['path' => $currentPath, 'disk' => $currentPath ? $disk : null];
     }
 }

@@ -23,10 +23,13 @@ class MomentController extends Controller
     {
         $validated = $request->validated();
 
+        $image = $resolveImage(null, null, $request->file('image'));
+
         Moment::create([
             'user_id' => $request->user()->id,
             'body' => $validated['body'],
-            'image_path' => $resolveImage(null, $request->file('image')),
+            'image_path' => $image['path'],
+            'image_disk' => $image['disk'],
         ]);
 
         return redirect()->route('moments.index');
@@ -45,13 +48,17 @@ class MomentController extends Controller
 
         $validated = $request->validated();
 
+        $image = $resolveImage(
+            $moment->image_path,
+            $moment->image_disk,
+            $request->file('image'),
+            (bool) ($validated['remove_image'] ?? false),
+        );
+
         $moment->update([
             'body' => $validated['body'],
-            'image_path' => $resolveImage(
-                $moment->image_path,
-                $request->file('image'),
-                (bool) ($validated['remove_image'] ?? false),
-            ),
+            'image_path' => $image['path'],
+            'image_disk' => $image['disk'],
         ]);
 
         return redirect()->route('moments.index');
@@ -62,7 +69,7 @@ class MomentController extends Controller
         $this->authorize('delete', $moment);
 
         if ($moment->image_path) {
-            Storage::disk('public')->delete($moment->image_path);
+            Storage::disk($moment->image_disk)->delete($moment->image_path);
         }
 
         $moment->delete();

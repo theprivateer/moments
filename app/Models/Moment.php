@@ -5,13 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class Moment extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'body', 'image_path'];
+    protected $fillable = ['user_id', 'body', 'image_path', 'image_disk'];
 
     public function user(): BelongsTo
     {
@@ -32,6 +33,6 @@ class Moment extends Model
             return null;
         }
 
-        return asset('storage/'.$this->image_path);
+        return Storage::disk($this->image_disk)->url($this->image_path);
     }
 }
