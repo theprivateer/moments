@@ -64,5 +64,9 @@
     @empty
         <p class="text-center text-gray-400 py-16">No moments yet. Be the first to share something!</p>
     @endforelse
+
+    <div class="mt-6">
+        {{ $moments->links('pagination::simple-tailwind') }}
+    </div>
 @endsection
 

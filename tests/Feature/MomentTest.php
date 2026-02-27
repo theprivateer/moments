@@ -142,3 +142,19 @@ it('requires a body on update when the existing image is being removed', functio
         ->patch("/moments/{$moment->id}", ['body' => '', 'remove_image' => '1'])
         ->assertSessionHasErrors('body');
 });
+
+it('paginates the timeline to 10 moments per page', function () {
+    Moment::factory()->count(15)->create();
+
+    $this->get('/')
+        ->assertSuccessful()
+        ->assertViewHas('moments', fn ($moments) => $moments->count() === 10);
+});
+
+it('shows the second page of moments', function () {
+    Moment::factory()->count(15)->create();
+
+    $this->get('/?page=2')
+        ->assertSuccessful()
+        ->assertViewHas('moments', fn ($moments) => $moments->count() === 5);
+});

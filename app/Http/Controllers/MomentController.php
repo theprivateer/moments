@@ -14,7 +14,7 @@ class MomentController extends Controller
 {
     public function index(): View
     {
-        $moments = Moment::query()->with('user')->latest()->get();
+        $moments = Moment::query()->with('user')->latest()->simplePaginate(10);
 
         return view('moments.index', compact('moments'));
     }
