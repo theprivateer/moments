@@ -19,6 +19,13 @@ class MomentController extends Controller
         return view('moments.index', compact('moments'));
     }
 
+    public function show(Moment $moment): View
+    {
+        $moment->load('user');
+
+        return view('moments.show', compact('moment'));
+    }
+
     public function store(StoreMomentRequest $request, ResolveMomentImageAction $resolveImage): RedirectResponse
     {
         $validated = $request->validated();

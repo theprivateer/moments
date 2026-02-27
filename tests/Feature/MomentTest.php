@@ -143,6 +143,25 @@ it('requires a body on update when the existing image is being removed', functio
         ->assertSessionHasErrors('body');
 });
 
+it('shows a single moment', function () {
+    $moment = Moment::factory()->create(['body' => '# Hello']);
+
+    $this->get("/moments/{$moment->id}")
+        ->assertSuccessful()
+        ->assertSee($moment->created_at->diffForHumans());
+});
+
+it('shows edit and delete actions to the moment author', function () {
+    $user = User::factory()->create();
+    $moment = Moment::factory()->for($user)->create();
+
+    $this->actingAs($user)
+        ->get("/moments/{$moment->id}")
+        ->assertSuccessful()
+        ->assertSee('Edit')
+        ->assertSee('Delete');
+});
+
 it('paginates the timeline to 10 moments per page', function () {
     Moment::factory()->count(15)->create();
 

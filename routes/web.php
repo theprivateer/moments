@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 
 // Public timeline
 Route::get('/', [MomentController::class, 'index'])->name('moments.index');
+Route::get('/moments/{moment}', [MomentController::class, 'show'])->name('moments.show');
 
 // Authenticated moment actions
 Route::middleware('auth')->group(function () {
