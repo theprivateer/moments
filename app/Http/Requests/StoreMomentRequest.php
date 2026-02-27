@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreMomentRequest extends FormRequest
 {
@@ -11,12 +12,17 @@ class StoreMomentRequest extends FormRequest
         return true;
     }
 
-    /** @return array<string, string> */
+    /** @return array<string, mixed> */
     public function rules(): array
     {
         return [
-            'body' => 'required|string|max:10000',
-            'image' => 'nullable|image|max:2048',
+            'body' => [
+                Rule::requiredIf(fn () => ! $this->hasFile('image')),
+                'nullable',
+                'string',
+                'max:10000',
+            ],
+            'image' => ['nullable', 'image', 'max:2048'],
         ];
     }
 }

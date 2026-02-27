@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateMomentRequest extends FormRequest
 {
@@ -11,13 +12,25 @@ class UpdateMomentRequest extends FormRequest
         return true;
     }
 
-    /** @return array<string, string> */
+    /** @return array<string, mixed> */
     public function rules(): array
     {
         return [
-            'body' => 'required|string|max:10000',
-            'image' => 'nullable|image|max:2048',
-            'remove_image' => 'nullable|boolean',
+            'body' => [
+                Rule::requiredIf(function () {
+                    $hasNewImage = $this->hasFile('image');
+                    $moment = $this->route('moment');
+                    $hasExistingImage = $moment->image_path !== null;
+                    $removingImage = (bool) $this->input('remove_image', false);
+
+                    return ! $hasNewImage && (! $hasExistingImage || $removingImage);
+                }),
+                'nullable',
+                'string',
+                'max:10000',
+            ],
+            'image' => ['nullable', 'image', 'max:2048'],
+            'remove_image' => ['nullable', 'boolean'],
         ];
     }
 }

@@ -9,21 +9,21 @@
                     <textarea
                         name="body"
                         rows="4"
-                        placeholder="What's on your mind? Markdown supported."
+                        placeholder="What's on your mind? Markdown supported. (Optional if attaching an image.)"
                         class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-hidden focus:ring-2 focus:ring-gray-400 resize-none"
                     >{{ old('body') }}</textarea>
                     @error('body')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
-                <div class="flex items-center justify-between gap-4">
-                    <label class="text-sm text-gray-500 cursor-pointer">
-                        <input type="file" name="image" accept="image/*" class="hidden" id="image-upload">
-                        <span id="image-label" class="hover:text-gray-700">Attach image</span>
-                    </label>
+                <div class="mb-3">
+                    <input type="file" name="image" accept="image/*"
+                        class="text-sm text-gray-500 file:mr-3 file:py-1 file:px-3 file:rounded file:border-0 file:text-sm file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200">
                     @error('image')
-                        <p class="text-sm text-red-600">{{ $message }}</p>
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
+                </div>
+                <div class="flex justify-end">
                     <button type="submit" class="bg-gray-900 text-white px-4 py-2 rounded-md text-sm hover:bg-gray-700">
                         Post
                     </button>
@@ -55,20 +55,14 @@
                 <img src="{{ $moment->imageUrl() }}" alt="Moment image" class="w-full rounded-md mb-3 object-cover max-h-96">
             @endif
 
-            <div class="prose prose-sm text-gray-800">
-                {!! $moment->renderedBody() !!}
-            </div>
+            @if ($moment->body)
+                <div class="prose prose-sm text-gray-800">
+                    {!! $moment->renderedBody() !!}
+                </div>
+            @endif
         </article>
     @empty
         <p class="text-center text-gray-400 py-16">No moments yet. Be the first to share something!</p>
     @endforelse
 @endsection
 
-@push('scripts')
-<script>
-    document.getElementById('image-upload')?.addEventListener('change', function () {
-        const label = document.getElementById('image-label');
-        label.textContent = this.files[0] ? this.files[0].name : 'Attach image';
-    });
-</script>
-@endpush

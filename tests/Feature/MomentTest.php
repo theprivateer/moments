@@ -22,12 +22,26 @@ it('lets an authenticated user create a moment', function () {
     ]);
 });
 
-it('requires a body to create a moment', function () {
+it('requires a body when no image is provided on store', function () {
     $user = User::factory()->create();
 
     $this->actingAs($user)
         ->post('/moments', ['body' => ''])
         ->assertSessionHasErrors('body');
+});
+
+it('allows creating a moment without a body when an image is attached', function () {
+    Storage::fake('public');
+
+    $user = User::factory()->create();
+    $file = UploadedFile::fake()->image('photo.jpg');
+
+    $this->actingAs($user)
+        ->post('/moments', ['image' => $file])
+        ->assertRedirect('/');
+
+    $moment = Moment::where('user_id', $user->id)->first();
+    expect($moment->body)->toBeNull();
 });
 
 it('redirects unauthenticated users to login when storing a moment', function () {
@@ -88,4 +102,43 @@ it('forbids deleting another user\'s moment', function () {
     $this->actingAs($other)
         ->delete("/moments/{$moment->id}")
         ->assertForbidden();
+});
+
+it('allows updating a moment without a body when a new image is uploaded', function () {
+    Storage::fake('public');
+
+    $moment = Moment::factory()->create(['body' => 'Original']);
+    $file = UploadedFile::fake()->image('photo.jpg');
+
+    $this->actingAs($moment->user)
+        ->patch("/moments/{$moment->id}", ['body' => '', 'image' => $file])
+        ->assertRedirect('/');
+
+    expect($moment->fresh()->body)->toBeNull();
+});
+
+it('allows updating a moment without a body when an existing image is kept', function () {
+    $moment = Moment::factory()->withoutBody()->create(['image_path' => 'images/photo.jpg', 'image_disk' => 'public']);
+
+    $this->actingAs($moment->user)
+        ->patch("/moments/{$moment->id}", ['body' => ''])
+        ->assertRedirect('/');
+
+    expect($moment->fresh()->body)->toBeNull();
+});
+
+it('requires a body on update when no image exists and none is uploaded', function () {
+    $moment = Moment::factory()->create(['body' => 'Original']);
+
+    $this->actingAs($moment->user)
+        ->patch("/moments/{$moment->id}", ['body' => ''])
+        ->assertSessionHasErrors('body');
+});
+
+it('requires a body on update when the existing image is being removed', function () {
+    $moment = Moment::factory()->withoutBody()->create(['image_path' => 'images/photo.jpg', 'image_disk' => 'public']);
+
+    $this->actingAs($moment->user)
+        ->patch("/moments/{$moment->id}", ['body' => '', 'remove_image' => '1'])
+        ->assertSessionHasErrors('body');
 });

@@ -19,8 +19,12 @@ class Moment extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function renderedBody(): string
+    public function renderedBody(): ?string
     {
+        if ($this->body === null) {
+            return null;
+        }
+
         return Str::markdown($this->body, [
             'html_input' => 'strip',
             'allow_unsafe_links' => false,

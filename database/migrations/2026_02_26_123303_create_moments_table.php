@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('moments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->text('body');
+            $table->text('body')->nullable();
             $table->string('image_path')->nullable();
             $table->string('image_disk')->nullable();
             $table->timestamps();

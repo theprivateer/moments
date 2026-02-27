@@ -9,7 +9,12 @@
             @method('PATCH')
 
             <div class="mb-4">
-                <label for="body" class="block text-sm font-medium text-gray-700 mb-1">Content</label>
+                <label for="body" class="block text-sm font-medium text-gray-700 mb-1">
+                    Content
+                    @if ($moment->imageUrl())
+                        <span class="font-normal text-gray-400">(optional — image attached)</span>
+                    @endif
+                </label>
                 <textarea
                     id="body"
                     name="body"

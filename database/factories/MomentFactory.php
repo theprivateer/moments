@@ -18,4 +18,11 @@ class MomentFactory extends Factory
             'image_path' => null,
         ];
     }
+
+    public function withoutBody(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'body' => null,
+        ]);
+    }
 }

@@ -14,7 +14,7 @@ class MomentController extends Controller
 {
     public function index(): View
     {
-        $moments = Moment::query()->latest()->get();
+        $moments = Moment::query()->with('user')->latest()->get();
 
         return view('moments.index', compact('moments'));
     }
@@ -27,7 +27,7 @@ class MomentController extends Controller
 
         Moment::create([
             'user_id' => $request->user()->id,
-            'body' => $validated['body'],
+            'body' => $validated['body'] ?? null,
             'image_path' => $image['path'],
             'image_disk' => $image['disk'],
         ]);
@@ -56,7 +56,7 @@ class MomentController extends Controller
         );
 
         $moment->update([
-            'body' => $validated['body'],
+            'body' => $validated['body'] ?? null,
             'image_path' => $image['path'],
             'image_disk' => $image['disk'],
         ]);
