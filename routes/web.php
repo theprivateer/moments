@@ -1,12 +1,14 @@
 <?php
 
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\FeedController;
 use App\Http\Controllers\MomentController;
 use Illuminate\Support\Facades\Route;
 
 // Public timeline
 Route::get('/', [MomentController::class, 'index'])->name('moments.index');
 Route::get('/moments/{moment}', [MomentController::class, 'show'])->name('moments.show');
+Route::get('/feed', FeedController::class)->name('feed');
 
 // Authenticated moment actions
 Route::middleware('auth')->group(function () {

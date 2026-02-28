@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Moments</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <link rel="alternate" type="application/rss+xml" title="Moments" href="{{ route('feed') }}">
 </head>
 <body class="bg-gray-50 text-gray-900 antialiased">
     <header class="bg-white border-b border-gray-200">
