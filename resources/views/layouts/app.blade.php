@@ -14,6 +14,7 @@
 
             <nav class="flex items-center gap-4 text-sm">
                 @auth
+                    <a href="{{ route('tokens.index') }}" class="text-gray-600 hover:text-gray-900">API tokens</a>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <button type="submit" class="text-gray-600 hover:text-gray-900 cursor-pointer">Log out</button>
