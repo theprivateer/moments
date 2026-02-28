@@ -52,7 +52,7 @@
             </div>
 
             @if ($moment->imageUrl())
-                <img src="{{ $moment->imageUrl() }}" alt="Moment image" class="w-full rounded-md mb-3 object-cover max-h-96">
+                <img src="{{ $moment->imageUrl() }}" alt="Moment image" class="w-full rounded-md mb-3">
             @endif
 
             @if ($moment->body)
