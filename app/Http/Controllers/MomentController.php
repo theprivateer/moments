@@ -16,14 +16,14 @@ class MomentController extends Controller
     {
         $moments = Moment::query()->with('user')->latest()->simplePaginate(10);
 
-        return view('moments.index', compact('moments'));
+        return view('moments.index', ['moments' => $moments]);
     }
 
     public function show(Moment $moment): View
     {
         $moment->load('user');
 
-        return view('moments.show', compact('moment'));
+        return view('moments.show', ['moment' => $moment]);
     }
 
     public function store(StoreMomentRequest $request, ResolveMomentImageAction $resolveImage): RedirectResponse
@@ -46,7 +46,7 @@ class MomentController extends Controller
     {
         $this->authorize('update', $moment);
 
-        return view('moments.edit', compact('moment'));
+        return view('moments.edit', ['moment' => $moment]);
     }
 
     public function update(UpdateMomentRequest $request, Moment $moment, ResolveMomentImageAction $resolveImage): RedirectResponse

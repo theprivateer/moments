@@ -291,3 +291,4 @@ $url = action([UserController::class, 'show'], $user);
 
 - Never `$request->all()` (use `validated()`), lazy load in loops (use `with()`), `count() > 0` (use `exists()`), `$user->posts->count()` (use `withCount()`), `env()` outside config (use `config()`), full models in jobs (use IDs), `config('app.url') . '/path'` (use `url()`, `route()`)
 - Always index FKs, `APP_DEBUG=false` in production
+- Never use `compact()` when passing data to a view, always pass an array of values
