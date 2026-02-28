@@ -8,10 +8,11 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('moments', function (Blueprint $table) {
+        Schema::create('moment_images', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->text('body')->nullable();
+            $table->foreignId('moment_id')->constrained()->cascadeOnDelete();
+            $table->string('path');
+            $table->string('disk');
             $table->timestamps();
         });
     }

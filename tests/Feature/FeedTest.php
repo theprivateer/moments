@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Moment;
+use App\Models\MomentImage;
 
 it('returns an rss feed', function () {
     Moment::factory()->count(3)->create(['body' => 'Hello world']);
@@ -20,12 +21,10 @@ it('limits the feed to 20 moments', function () {
 });
 
 it('includes image-only moments with a date-based title', function () {
-    $moment = Moment::factory()->withoutBody()->create([
-        'image_path' => 'images/photo.jpg',
-        'image_disk' => 'public',
-    ]);
+    $moment = Moment::factory()->withoutBody()->create();
+    MomentImage::factory()->for($moment)->create();
 
     $this->get('/feed')
         ->assertSuccessful()
-        ->assertSee('Moment — '.$moment->created_at->format('j M Y'), false);
+        ->assertSee('Moment - '.$moment->created_at->format('j M Y'), false);
 });

@@ -17,9 +17,9 @@
                     @enderror
                 </div>
                 <div class="mb-3">
-                    <input type="file" name="image" accept="image/*"
+                    <input type="file" name="images[]" accept="image/*" multiple
                         class="text-sm text-gray-500 file:mr-3 file:py-1 file:px-3 file:rounded file:border-0 file:text-sm file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200">
-                    @error('image')
+                    @error('images.*')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
@@ -51,9 +51,9 @@
                 @endcan
             </div>
 
-            @if ($moment->imageUrl())
-                <img src="{{ $moment->imageUrl() }}" alt="Moment image" class="w-full rounded-md mb-3">
-            @endif
+            @foreach ($moment->images as $image)
+                <img src="{{ $image->url() }}" alt="Moment image" class="w-full rounded-md mb-3">
+            @endforeach
 
             @if ($moment->body)
                 <div class="prose text-gray-800">

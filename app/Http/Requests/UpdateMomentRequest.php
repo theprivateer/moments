@@ -18,19 +18,20 @@ class UpdateMomentRequest extends FormRequest
         return [
             'body' => [
                 Rule::requiredIf(function () {
-                    $hasNewImage = $this->hasFile('image');
+                    $hasNewImages = $this->hasFile('images');
                     $moment = $this->route('moment');
-                    $hasExistingImage = $moment->image_path !== null;
-                    $removingImage = (bool) $this->input('remove_image', false);
+                    $remaining = $moment->images()->count() - count($this->input('remove_images', []));
 
-                    return ! $hasNewImage && (! $hasExistingImage || $removingImage);
+                    return ! $hasNewImages && $remaining <= 0;
                 }),
                 'nullable',
                 'string',
                 'max:10000',
             ],
-            'image' => ['nullable', 'image', 'max:2048'],
-            'remove_image' => ['nullable', 'boolean'],
+            'images' => ['nullable', 'array'],
+            'images.*' => ['image', 'max:2048'],
+            'remove_images' => ['nullable', 'array'],
+            'remove_images.*' => ['integer', 'exists:moment_images,id'],
         ];
     }
 }

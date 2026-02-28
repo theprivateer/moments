@@ -17,9 +17,9 @@
             @endcan
         </div>
 
-        @if ($moment->imageUrl())
-            <img src="{{ $moment->imageUrl() }}" alt="Moment image" class="w-full rounded-md mb-3">
-        @endif
+        @foreach ($moment->images as $image)
+            <img src="{{ $image->url() }}" alt="Moment image" class="w-full rounded-md mb-3">
+        @endforeach
 
         @if ($moment->body)
             <div class="prose text-gray-800">

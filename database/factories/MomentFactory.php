@@ -15,7 +15,6 @@ class MomentFactory extends Factory
         return [
             'user_id' => User::factory(),
             'body' => fake()->paragraphs(2, true),
-            'image_path' => null,
         ];
     }
 

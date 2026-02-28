@@ -12,9 +12,9 @@
             <guid isPermaLink="true">{{ route('moments.show', $moment) }}</guid>
             <pubDate>{{ $moment->created_at->toRfc2822String() }}</pubDate>
             <description><![CDATA[
-                @if ($moment->imageUrl())
-                    <img src="{{ $moment->imageUrl() }}" alt="">
-                @endif
+                @foreach ($moment->images as $image)
+                    <img src="{{ $image->url() }}" alt="">
+                @endforeach
                 @if ($moment->body)
                     {!! $moment->renderedBody() !!}
                 @endif

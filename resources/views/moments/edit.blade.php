@@ -11,7 +11,7 @@
             <div class="mb-4">
                 <label for="body" class="block text-sm font-medium text-gray-700 mb-1">
                     Content
-                    @if ($moment->imageUrl())
+                    @if ($moment->images->isNotEmpty())
                         <span class="font-normal text-gray-400">(optional — image attached)</span>
                     @endif
                 </label>
@@ -26,22 +26,26 @@
                 @enderror
             </div>
 
-            @if ($moment->imageUrl())
+            @if ($moment->images->isNotEmpty())
                 <div class="mb-4">
-                    <p class="text-sm font-medium text-gray-700 mb-2">Current image</p>
-                    <img src="{{ $moment->imageUrl() }}" alt="Current image" class="w-full rounded-md mb-2 object-cover max-h-48">
-                    <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
-                        <input type="checkbox" name="remove_image" value="1" class="rounded">
-                        Remove image
-                    </label>
+                    <p class="text-sm font-medium text-gray-700 mb-2">Current images</p>
+                    @foreach ($moment->images as $image)
+                        <div class="mb-3">
+                            <img src="{{ $image->url() }}" alt="Moment image" class="w-full rounded-md mb-2 object-cover max-h-48">
+                            <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+                                <input type="checkbox" name="remove_images[]" value="{{ $image->id }}" class="rounded">
+                                Remove this image
+                            </label>
+                        </div>
+                    @endforeach
                 </div>
             @endif
 
             <div class="mb-6">
-                <label class="block text-sm font-medium text-gray-700 mb-1">New image (optional)</label>
-                <input type="file" name="image" accept="image/*"
+                <label class="block text-sm font-medium text-gray-700 mb-1">Add images (optional)</label>
+                <input type="file" name="images[]" accept="image/*" multiple
                     class="text-sm text-gray-500 file:mr-3 file:py-1 file:px-3 file:rounded file:border-0 file:text-sm file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200">
-                @error('image')
+                @error('images.*')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                 @enderror
             </div>

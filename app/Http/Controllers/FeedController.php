@@ -10,7 +10,7 @@ class FeedController extends Controller
     public function __invoke(): Response
     {
         $moments = Moment::query()
-            ->with('user')
+            ->with(['user', 'images'])
             ->latest()
             ->limit(20)
             ->get();

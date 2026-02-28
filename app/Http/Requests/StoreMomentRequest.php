@@ -17,12 +17,13 @@ class StoreMomentRequest extends FormRequest
     {
         return [
             'body' => [
-                Rule::requiredIf(fn () => ! $this->hasFile('image')),
+                Rule::requiredIf(fn () => ! $this->hasFile('images')),
                 'nullable',
                 'string',
                 'max:10000',
             ],
-            'image' => ['nullable', 'image', 'max:2048'],
+            'images' => ['nullable', 'array'],
+            'images.*' => ['image', 'max:2048'],
         ];
     }
 }

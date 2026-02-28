@@ -8,7 +8,7 @@ A personal micro-blog for publishing short posts to a public timeline. Built wit
 - **Markdown rendering** — post content is written and rendered in Markdown
 - **Single-author** — one user account owns the blog
 - **Post management** — create, edit, and delete posts when logged in
-- **Image attachments** — moments can include an image; body is optional when an image is present
+- **Image attachments** — moments can include multiple images; body is optional when at least one image is present
 - **Permalinks** — each moment has its own page
 - **RSS feed** — subscribe at `/feed` with any feed reader
 

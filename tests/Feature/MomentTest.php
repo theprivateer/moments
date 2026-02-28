@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Moment;
+use App\Models\MomentImage;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -37,11 +38,12 @@ it('allows creating a moment without a body when an image is attached', function
     $file = UploadedFile::fake()->image('photo.jpg');
 
     $this->actingAs($user)
-        ->post('/moments', ['image' => $file])
+        ->post('/moments', ['images' => [$file]])
         ->assertRedirect('/');
 
     $moment = Moment::where('user_id', $user->id)->first();
     expect($moment->body)->toBeNull();
+    expect($moment->images()->count())->toBe(1);
 });
 
 it('redirects unauthenticated users to login when storing a moment', function () {
@@ -58,13 +60,34 @@ it('stores an uploaded image on the public disk', function () {
     $this->actingAs($user)
         ->post('/moments', [
             'body' => 'Moment with image',
-            'image' => $file,
+            'images' => [$file],
         ])
         ->assertRedirect('/');
 
     $moment = Moment::where('user_id', $user->id)->first();
-    expect($moment->image_path)->not->toBeNull();
-    Storage::disk('public')->assertExists($moment->image_path);
+    $image = $moment->images()->first();
+    expect($image)->not->toBeNull();
+    Storage::disk('public')->assertExists($image->path);
+});
+
+it('stores multiple uploaded images', function () {
+    Storage::fake('public');
+
+    $user = User::factory()->create();
+    $files = [
+        UploadedFile::fake()->image('photo1.jpg'),
+        UploadedFile::fake()->image('photo2.jpg'),
+    ];
+
+    $this->actingAs($user)
+        ->post('/moments', [
+            'body' => 'Moment with images',
+            'images' => $files,
+        ])
+        ->assertRedirect('/');
+
+    $moment = Moment::where('user_id', $user->id)->first();
+    expect($moment->images()->count())->toBe(2);
 });
 
 it('lets a user edit their own moment', function () {
@@ -111,14 +134,15 @@ it('allows updating a moment without a body when a new image is uploaded', funct
     $file = UploadedFile::fake()->image('photo.jpg');
 
     $this->actingAs($moment->user)
-        ->patch("/moments/{$moment->id}", ['body' => '', 'image' => $file])
+        ->patch("/moments/{$moment->id}", ['body' => '', 'images' => [$file]])
         ->assertRedirect('/');
 
     expect($moment->fresh()->body)->toBeNull();
 });
 
 it('allows updating a moment without a body when an existing image is kept', function () {
-    $moment = Moment::factory()->withoutBody()->create(['image_path' => 'images/photo.jpg', 'image_disk' => 'public']);
+    $moment = Moment::factory()->withoutBody()->create();
+    MomentImage::factory()->for($moment)->create();
 
     $this->actingAs($moment->user)
         ->patch("/moments/{$moment->id}", ['body' => ''])
@@ -136,11 +160,27 @@ it('requires a body on update when no image exists and none is uploaded', functi
 });
 
 it('requires a body on update when the existing image is being removed', function () {
-    $moment = Moment::factory()->withoutBody()->create(['image_path' => 'images/photo.jpg', 'image_disk' => 'public']);
+    $moment = Moment::factory()->withoutBody()->create();
+    $image = MomentImage::factory()->for($moment)->create();
 
     $this->actingAs($moment->user)
-        ->patch("/moments/{$moment->id}", ['body' => '', 'remove_image' => '1'])
+        ->patch("/moments/{$moment->id}", ['body' => '', 'remove_images' => [$image->id]])
         ->assertSessionHasErrors('body');
+});
+
+it('removes a specific image on update', function () {
+    Storage::fake('public');
+
+    $moment = Moment::factory()->create(['body' => 'Hello']);
+    $imageToRemove = MomentImage::factory()->for($moment)->create(['path' => 'moments/remove.jpg']);
+    $imageToKeep = MomentImage::factory()->for($moment)->create(['path' => 'moments/keep.jpg']);
+
+    $this->actingAs($moment->user)
+        ->patch("/moments/{$moment->id}", ['body' => 'Hello', 'remove_images' => [$imageToRemove->id]])
+        ->assertRedirect('/');
+
+    $this->assertDatabaseMissing('moment_images', ['id' => $imageToRemove->id]);
+    $this->assertDatabaseHas('moment_images', ['id' => $imageToKeep->id]);
 });
 
 it('shows a single moment', function () {
