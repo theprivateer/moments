@@ -44,7 +44,7 @@
                         <form method="POST" action="{{ route('moments.destroy', $moment) }}">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="text-red-500 hover:text-red-700"
+                            <button type="submit" class="text-red-500 hover:text-red-700 cursor-pointer"
                                 onclick="return confirm('Delete this moment?')">Delete</button>
                         </form>
                     </div>
@@ -56,7 +56,7 @@
             @endif
 
             @if ($moment->body)
-                <div class="prose prose-sm text-gray-800">
+                <div class="prose text-gray-800">
                     {!! $moment->renderedBody() !!}
                 </div>
             @endif
@@ -69,4 +69,3 @@
         {{ $moments->links('pagination::simple-tailwind') }}
     </div>
 @endsection
-
