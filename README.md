@@ -8,6 +8,9 @@ A personal micro-blog for publishing short posts to a public timeline. Built wit
 - **Markdown rendering** — post content is written and rendered in Markdown
 - **Single-author** — one user account owns the blog
 - **Post management** — create, edit, and delete posts when logged in
+- **Image attachments** — moments can include an image; body is optional when an image is present
+- **Permalinks** — each moment has its own page
+- **RSS feed** — subscribe at `/feed` with any feed reader
 
 > [!NOTE]
 > I am intentionally using **Claude Code** to help build and maintain this project as an exploration of using AI coding assistants. I have chosen this project as it is a reimagining of [an idea I had in early 2017](https://github.com/theprivateer/shortform), so the spec is fairly well documented.
@@ -50,3 +53,11 @@ composer run dev
 ```
 
 Then visit [http://moments.test](http://moments.test) in your browser.
+
+## Configuration
+
+| Variable | Default | Description |
+|---|---|---|
+| `MOMENTS_IMAGE_DISK` | `public` | Filesystem disk for uploaded images. Set to `s3` to store images in S3. |
+
+If using the default `public` disk, run `php artisan storage:link` once to make uploaded images publicly accessible.
