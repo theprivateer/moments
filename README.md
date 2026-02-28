@@ -87,6 +87,9 @@ Send as `multipart/form-data`. At least one of `body` or `images[]` must be prov
 | `body` | string | Required if no images | Moment text. Markdown is supported (max 10,000 chars). |
 | `images[]` | file | Required if no body | One or more image files to attach (max 2 MB each). |
 
+> [!IMPORTANT]
+> All API requests must include the `Accept: application/json` header. Without it, validation errors will return an HTML redirect (302) instead of a JSON `422` error response.
+
 ### Response
 
 **201 Created** on success:
@@ -115,6 +118,7 @@ Send as `multipart/form-data`. At least one of `body` or `images[]` must be prov
 ```bash
 curl -X POST http://moments.test/api/moments \
   -H "Authorization: Bearer <token>" \
+  -H "Accept: application/json" \
   -F "body=Hello from the API"
 ```
 
@@ -122,6 +126,7 @@ curl -X POST http://moments.test/api/moments \
 ```bash
 curl -X POST http://moments.test/api/moments \
   -H "Authorization: Bearer <token>" \
+  -H "Accept: application/json" \
   -F "images[]=@photo.jpg"
 ```
 
@@ -129,6 +134,7 @@ curl -X POST http://moments.test/api/moments \
 ```bash
 curl -X POST http://moments.test/api/moments \
   -H "Authorization: Bearer <token>" \
+  -H "Accept: application/json" \
   -F "body=A moment with a photo" \
   -F "images[]=@photo.jpg"
 ```
