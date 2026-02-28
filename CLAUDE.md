@@ -51,6 +51,56 @@ Use Boost MCP tools for this project:
 
 The site is served by Laravel Herd — do not run `php artisan serve` to make it available.
 
+## Architecture
+
+Moments is a single-author micro-blog. Posts ("moments") appear on a public timeline and can contain Markdown text, images, or both. The app has a web UI (Blade/session auth) and a REST API (Sanctum bearer tokens).
+
+### Models
+
+**`Moment`** — core post model
+- `body` — nullable Markdown text (rendered via `renderedBody()` using CommonMark)
+- `images()` — `HasMany` → `MomentImage`
+- `user()` — `BelongsTo` → `User`
+
+**`MomentImage`** — stores one attached image per row
+- `path` + `disk` — stored separately so the disk can change without breaking old URLs
+- `url()` — returns `Storage::disk($this->disk)->url($this->path)`
+
+**`User`**
+- `moments()` — `HasMany` → `Moment`
+- Uses `HasApiTokens` (Sanctum) alongside `HasFactory`, `Notifiable`
+
+### Validation — `StoreMomentRequest`
+
+Shared by the web form and the API. The key rule: **`body` is required only when no images are uploaded** (and vice versa). At least one must be present.
+
+### Image Storage
+
+Configured via `config('moments.image_disk')` (env `MOMENTS_IMAGE_DISK`, default `public`). Controllers use:
+
+```php
+$file->store('moments', config('moments.image_disk'))
+```
+
+The `disk` value is saved on each `MomentImage` row at creation time. On delete/update, images are removed from storage via `Storage::disk($image->disk)->delete($image->path)`.
+
+Run `php artisan storage:link` once when using the `public` disk.
+
+### Authorization
+
+`MomentPolicy` enforces ownership for `update` and `delete`. Controllers call `$this->authorize('update', $moment)`. The `TokenController` uses `abort_if($token->tokenable_id !== $request->user()->id, 403)` for manual ownership checks.
+
+### Authentication
+
+- **Web** — session-based (`middleware('auth')`), managed by `Auth\LoginController`
+- **API** — Sanctum personal access tokens (`middleware('auth:sanctum')`); tokens created/revoked at `/tokens`
+
+### Custom Artisan Command
+
+```bash
+php artisan moments:install   # Interactive: creates the owner account (name, email, password)
+```
+
 ===
 
 <laravel-boost-guidelines>
