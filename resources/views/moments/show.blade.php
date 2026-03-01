@@ -18,7 +18,13 @@
         </div>
 
         @foreach ($moment->images as $image)
-            <img src="{{ $image->glideUrl(1200) }}" alt="Moment image" class="w-full rounded-md mb-3">
+            <button
+                type="button"
+                onclick="openLightbox('{{ $image->glideUrl(1200) }}')"
+                class="block w-full cursor-zoom-in"
+            >
+                <img src="{{ $image->glideUrl(1200) }}" alt="Moment image" class="w-full rounded-md mb-3 object-cover aspect-square">
+            </button>
         @endforeach
 
         @if ($moment->body)

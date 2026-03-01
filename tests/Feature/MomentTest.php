@@ -217,3 +217,23 @@ it('shows the second page of moments', function () {
         ->assertSuccessful()
         ->assertViewHas('moments', fn ($moments) => $moments->count() === 5);
 });
+
+it('renders a lightbox trigger for images on the timeline', function () {
+    $moment = Moment::factory()->create(['body' => 'Hello']);
+    MomentImage::factory()->for($moment)->create();
+
+    $this->get('/')
+        ->assertSuccessful()
+        ->assertSee('openLightbox(', false)
+        ->assertSee('id="lightbox"', false);
+});
+
+it('renders a lightbox trigger for images on the show page', function () {
+    $moment = Moment::factory()->create(['body' => 'Hello']);
+    MomentImage::factory()->for($moment)->create();
+
+    $this->get("/moments/{$moment->id}")
+        ->assertSuccessful()
+        ->assertSee('openLightbox(', false)
+        ->assertSee('id="lightbox"', false);
+});

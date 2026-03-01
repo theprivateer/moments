@@ -29,5 +29,19 @@
     <main class="max-w-xl mx-auto px-4 py-8">
         @yield('content')
     </main>
+    <dialog
+        id="lightbox"
+        onclick="this.close()"
+        class="fixed inset-0 w-full h-full max-w-none max-h-none m-0 p-0 border-0 bg-transparent backdrop:bg-black/75"
+    >
+        <div onclick="event.stopPropagation()" class="flex items-center justify-center w-full h-full">
+            <div class="relative">
+                <img id="lightbox-image" src="" alt="" class="block max-w-[90vw] max-h-[90vh] object-contain rounded-lg">
+                <form method="dialog" class="absolute top-2 right-2">
+                    <button type="submit" class="flex items-center justify-center bg-black/50 text-white rounded-full size-8 text-lg hover:bg-black/75 cursor-pointer">×</button>
+                </form>
+            </div>
+        </div>
+    </dialog>
 </body>
 </html>
