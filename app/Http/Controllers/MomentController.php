@@ -77,6 +77,8 @@ class MomentController extends Controller
     {
         $this->authorize('delete', $moment);
 
+        $moment->load('images');
+
         foreach ($moment->images as $image) {
             Storage::disk($image->disk)->delete($image->path);
         }
