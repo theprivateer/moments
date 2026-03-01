@@ -62,7 +62,7 @@ Then visit [http://moments.test](http://moments.test) in your browser.
 | Variable | Default | Description |
 |---|---|---|
 | `MOMENTS_IMAGE_DISK` | `public` | Filesystem disk for uploaded images. Set to `s3` to store images in S3. |
-| `GLIDE_SIGN_KEY` | _(none)_ | Secret key used to sign Glide image URLs. Generate with `php artisan tinker --execute="echo Str::random(32);"`. |
+| `GLIDE_SIGN_KEY` | _(none)_ | Secret key used to sign Glide image URLs. Generate with `php artisan tinker moments:glide-key`. |
 
 If using the default `public` disk, run `php artisan storage:link` once to make uploaded images publicly accessible.
 

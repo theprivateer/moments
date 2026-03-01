@@ -51,6 +51,8 @@ class InstallCommand extends Command
             'password' => $password,
         ]);
 
+        $this->call('moments:glide-key', ['--force' => true]);
+
         info('User created successfully.');
 
         return self::SUCCESS;
