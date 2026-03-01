@@ -9,6 +9,7 @@ A personal micro-blog for publishing short posts to a public timeline. Built wit
 - **Single-author** — one user account owns the blog
 - **Post management** — create, edit, and delete posts when logged in
 - **Image attachments** — moments can include multiple images; body is optional when at least one image is present
+- **Image optimisation** — images are resized server-side via Glide to match their display dimensions, reducing bandwidth without sacrificing quality
 - **Permalinks** — each moment has its own page
 - **RSS feed** — subscribe at `/feed` with any feed reader
 - **API access** — post moments programmatically via a REST API using bearer tokens
@@ -61,6 +62,7 @@ Then visit [http://moments.test](http://moments.test) in your browser.
 | Variable | Default | Description |
 |---|---|---|
 | `MOMENTS_IMAGE_DISK` | `public` | Filesystem disk for uploaded images. Set to `s3` to store images in S3. |
+| `GLIDE_SIGN_KEY` | _(none)_ | Secret key used to sign Glide image URLs. Generate with `php artisan tinker --execute="echo Str::random(32);"`. |
 
 If using the default `public` disk, run `php artisan storage:link` once to make uploaded images publicly accessible.
 
