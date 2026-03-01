@@ -2,9 +2,13 @@
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\FeedController;
+use App\Http\Controllers\GlideController;
 use App\Http\Controllers\MomentController;
 use App\Http\Controllers\TokenController;
 use Illuminate\Support\Facades\Route;
+
+// Image transformation
+Route::get('/img/{path}', GlideController::class)->where('path', '.*')->name('glide');
 
 // Public timeline
 Route::get('/', [MomentController::class, 'index'])->name('moments.index');

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Storage;
+use League\Glide\Urls\UrlBuilderFactory;
 
 class MomentImage extends Model
 {
@@ -21,5 +22,12 @@ class MomentImage extends Model
     public function url(): string
     {
         return Storage::disk($this->disk)->url($this->path);
+    }
+
+    public function glideUrl(int $width): string
+    {
+        $builder = UrlBuilderFactory::create('/img/', config('moments.glide_sign_key'));
+
+        return $builder->getUrl($this->path, ['w' => $width, 'disk' => $this->disk]);
     }
 }

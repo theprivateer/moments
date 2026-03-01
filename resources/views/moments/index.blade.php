@@ -52,7 +52,7 @@
             </div>
 
             @foreach ($moment->images as $image)
-                <img src="{{ $image->url() }}" alt="Moment image" class="w-full rounded-md mb-3">
+                <img src="{{ $image->glideUrl(800) }}" alt="Moment image" class="w-full rounded-md mb-3">
             @endforeach
 
             @if ($moment->body)
