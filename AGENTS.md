@@ -65,6 +65,7 @@ Moments is a single-author micro-blog. Posts ("moments") appear on a public time
 **`MomentImage`** — stores one attached image per row
 - `path` + `disk` — stored separately so the disk can change without breaking old URLs
 - `url()` — returns `Storage::disk($this->disk)->url($this->path)`
+- `glideUrl(int $width)` — returns a signed Glide URL; **use this in views** instead of `url()`
 
 **`User`**
 - `moments()` — `HasMany` → `Moment`
@@ -85,6 +86,16 @@ $file->store('moments', config('moments.image_disk'))
 The `disk` value is saved on each `MomentImage` row at creation time. On delete/update, images are removed from storage via `Storage::disk($image->disk)->delete($image->path)`.
 
 Run `php artisan storage:link` once when using the `public` disk.
+
+### Image Serving (Glide)
+
+Images are served through `GlideController` (`GET /img/{path}`, named `glide`) which resizes them server-side using `league/glide`. Views must call `$image->glideUrl($width)` — never `$image->url()` — to get a signed URL.
+
+Key details:
+- The signing key is `config('moments.glide_sign_key')` (env: `GLIDE_SIGN_KEY`).
+- `UrlBuilderFactory` signs using the **full path** including the `/img/` prefix (e.g. `/img/moments/photo.jpg`). The controller validates with the same full path: `->validateRequest('/img/'.$path, ...)`.
+- Resized images are cached at `storage/framework/cache/glide`.
+- Display widths: timeline = `800`, show page = `1200`.
 
 ### Authorization
 
