@@ -10,7 +10,7 @@ it('creates a moment with body only and returns 201', function () {
     $token = $user->createToken('test')->plainTextToken;
 
     $this->withToken($token)
-        ->postJson('/api/moments', ['body' => 'Hello API'])
+        ->postJson('/api/v1/moments', ['body' => 'Hello API'])
         ->assertCreated()
         ->assertJsonPath('data.body', 'Hello API');
 
@@ -24,7 +24,7 @@ it('creates a moment with image only and returns 201', function () {
     $token = $user->createToken('test')->plainTextToken;
 
     $this->withToken($token)
-        ->postJson('/api/moments', [
+        ->postJson('/api/v1/moments', [
             'images' => [UploadedFile::fake()->image('photo.jpg')],
         ])
         ->assertCreated()
@@ -41,7 +41,7 @@ it('creates a moment with body and multiple images and returns image urls', func
     $token = $user->createToken('test')->plainTextToken;
 
     $response = $this->withToken($token)
-        ->postJson('/api/moments', [
+        ->postJson('/api/v1/moments', [
             'body' => 'With images',
             'images' => [
                 UploadedFile::fake()->image('a.jpg'),
@@ -60,7 +60,7 @@ it('rejects a request with neither body nor image', function () {
     $token = $user->createToken('test')->plainTextToken;
 
     $this->withToken($token)
-        ->postJson('/api/moments', [])
+        ->postJson('/api/v1/moments', [])
         ->assertUnprocessable()
         ->assertJsonValidationErrors('body');
 });
@@ -70,7 +70,7 @@ it('rejects an invalid file type', function () {
     $token = $user->createToken('test')->plainTextToken;
 
     $this->withToken($token)
-        ->postJson('/api/moments', [
+        ->postJson('/api/v1/moments', [
             'images' => [UploadedFile::fake()->create('doc.pdf', 100, 'application/pdf')],
         ])
         ->assertUnprocessable()
@@ -78,7 +78,7 @@ it('rejects an invalid file type', function () {
 });
 
 it('rejects an unauthenticated request with 401', function () {
-    $this->postJson('/api/moments', ['body' => 'Hello'])
+    $this->postJson('/api/v1/moments', ['body' => 'Hello'])
         ->assertUnauthorized();
 });
 
@@ -88,7 +88,7 @@ it('associates the moment with the token owner', function () {
     $token = $user->createToken('test')->plainTextToken;
 
     $this->withToken($token)
-        ->postJson('/api/moments', ['body' => 'Mine'])
+        ->postJson('/api/v1/moments', ['body' => 'Mine'])
         ->assertCreated();
 
     $this->assertDatabaseHas('moments', ['user_id' => $user->id, 'body' => 'Mine']);

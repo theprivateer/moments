@@ -78,7 +78,7 @@ Log in, visit `/tokens`, give the token a name, and click **Create**. Copy the t
 
 | Method | Endpoint | Auth |
 |--------|----------|------|
-| `POST` | `/api/moments` | Bearer token |
+| `POST` | `/api/v1/moments` | Bearer token |
 
 ### Request
 
@@ -118,7 +118,7 @@ Send as `multipart/form-data`. At least one of `body` or `images[]` must be prov
 
 **Text-only moment:**
 ```bash
-curl -X POST http://moments.test/api/moments \
+curl -X POST http://moments.test/api/v1/moments \
   -H "Authorization: Bearer <token>" \
   -H "Accept: application/json" \
   -F "body=Hello from the API"
@@ -126,7 +126,7 @@ curl -X POST http://moments.test/api/moments \
 
 **Image-only moment:**
 ```bash
-curl -X POST http://moments.test/api/moments \
+curl -X POST http://moments.test/api/v1/moments \
   -H "Authorization: Bearer <token>" \
   -H "Accept: application/json" \
   -F "images[]=@photo.jpg"
@@ -134,7 +134,7 @@ curl -X POST http://moments.test/api/moments \
 
 **Text and image:**
 ```bash
-curl -X POST http://moments.test/api/moments \
+curl -X POST http://moments.test/api/v1/moments \
   -H "Authorization: Bearer <token>" \
   -H "Accept: application/json" \
   -F "body=A moment with a photo" \
