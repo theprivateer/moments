@@ -24,4 +24,17 @@ return [
     |
     */
     'glide_sign_key' => env('GLIDE_SIGN_KEY'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Image Upload Size Limit
+    |--------------------------------------------------------------------------
+    |
+    | The maximum allowed size for each uploaded image, in kilobytes. This
+    | value is passed directly to Laravel's validation `max` rule. The default
+    | of 2048 permits files up to 2 MB. Increase for high-resolution uploads
+    | or decrease to conserve storage.
+    |
+    */
+    'image_max_size' => (int) env('MOMENTS_IMAGE_MAX_SIZE', 2048),
 ];

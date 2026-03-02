@@ -29,7 +29,7 @@ class UpdateMomentRequest extends FormRequest
                 'max:10000',
             ],
             'images' => ['nullable', 'array'],
-            'images.*' => ['image', 'max:2048'],
+            'images.*' => ['image', 'max:'.config('moments.image_max_size')],
             'remove_images' => ['nullable', 'array'],
             'remove_images.*' => ['integer', 'exists:moment_images,id'],
         ];

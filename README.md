@@ -62,6 +62,7 @@ Then visit [http://moments.test](http://moments.test) in your browser.
 | Variable | Default | Description |
 |---|---|---|
 | `MOMENTS_IMAGE_DISK` | `public` | Filesystem disk for uploaded images. Set to `s3` to store images in S3. |
+| `MOMENTS_IMAGE_MAX_SIZE` | `2048` | Maximum image upload size in KB (default: 2048 = 2 MB). |
 | `GLIDE_SIGN_KEY` | _(none)_ | Secret key used to sign Glide image URLs. Generate with `php artisan tinker moments:glide-key`. |
 
 If using the default `public` disk, run `php artisan storage:link` once to make uploaded images publicly accessible.
@@ -87,7 +88,7 @@ Send as `multipart/form-data`. At least one of `body` or `images[]` must be prov
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `body` | string | Required if no images | Moment text. Markdown is supported (max 10,000 chars). |
-| `images[]` | file | Required if no body | One or more image files to attach (max 2 MB each). |
+| `images[]` | file | Required if no body | One or more image files to attach (max size configurable via `MOMENTS_IMAGE_MAX_SIZE`, default 2 MB). |
 
 > [!IMPORTANT]
 > All API requests must include the `Accept: application/json` header. Without it, validation errors will return an HTML redirect (302) instead of a JSON `422` error response.
