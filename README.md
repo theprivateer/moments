@@ -76,25 +76,50 @@ Moments exposes a REST API for posting moments from external clients. A full Ope
 
 Log in, visit `/tokens`, give the token a name, and click **Create**. Copy the token value immediately — it is only shown once. You can revoke tokens from the same page.
 
-### Endpoint
+### Endpoints
 
-| Method | Endpoint | Auth |
-|--------|----------|------|
-| `POST` | `/api/v1/moments` | Bearer token |
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| `POST` | `/api/v1/images` | Bearer token | Upload an image, receive an image ID |
+| `POST` | `/api/v1/moments` | Bearer token | Create a moment, referencing uploaded image IDs |
 
-### Request
+### Two-step workflow
 
-Send as `multipart/form-data`. At least one of `body` or `images[]` must be provided.
+Posting a moment with images requires two steps:
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `body` | string | Required if no images | Moment text. Markdown is supported (max 10,000 chars). |
-| `images[]` | file | Required if no body | One or more image files to attach (max size configurable via `MOMENTS_IMAGE_MAX_SIZE`, default 2 MB). |
+1. **Upload each image** via `POST /api/v1/images` — returns an `id` for each uploaded image.
+2. **Create the moment** via `POST /api/v1/moments` — pass the image IDs you collected in step 1.
 
 > [!IMPORTANT]
 > All API requests must include the `Accept: application/json` header. Without it, validation errors will return an HTML redirect (302) instead of a JSON `422` error response.
 
-### Response
+### POST /api/v1/images
+
+Send as `multipart/form-data`.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `image` | file | Yes | Image file to upload (max size configurable via `MOMENTS_IMAGE_MAX_SIZE`, default 2 MB). |
+
+**201 Created** on success:
+
+```json
+{
+  "data": {
+    "id": 42,
+    "url": "https://moments.test/img/moments/photo.jpg?s=..."
+  }
+}
+```
+
+### POST /api/v1/moments
+
+Send as `application/json`. At least one of `body` or `images` must be provided.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `body` | string | Required if no images | Moment text. Markdown is supported (max 10,000 chars). |
+| `images` | integer[] | Required if no body | IDs of pre-uploaded images (from `POST /api/v1/images`). |
 
 **201 Created** on success:
 
@@ -105,16 +130,18 @@ Send as `multipart/form-data`. At least one of `body` or `images[]` must be prov
     "body": "Hello from the API",
     "body_html": "<p>Hello from the API</p>\n",
     "created_at": "2026-02-28T09:00:00.000000Z",
-    "images": []
+    "images": [
+      { "id": 42, "url": "https://moments.test/img/moments/photo.jpg?s=..." }
+    ]
   }
 }
 ```
 
 | Status | Meaning |
 |--------|---------|
-| `201 Created` | Moment created successfully |
+| `201 Created` | Resource created successfully |
 | `401 Unauthorized` | Missing or invalid token |
-| `422 Unprocessable` | Validation failed (e.g. neither body nor image provided) |
+| `422 Unprocessable` | Validation failed |
 
 ### Examples
 
@@ -123,22 +150,38 @@ Send as `multipart/form-data`. At least one of `body` or `images[]` must be prov
 curl -X POST http://moments.test/api/v1/moments \
   -H "Authorization: Bearer <token>" \
   -H "Accept: application/json" \
-  -F "body=Hello from the API"
+  -H "Content-Type: application/json" \
+  -d '{"body": "Hello from the API"}'
 ```
 
-**Image-only moment:**
+**Image-only moment (two steps):**
 ```bash
+# Step 1: upload the image
+IMAGE_ID=$(curl -s -X POST http://moments.test/api/v1/images \
+  -H "Authorization: Bearer <token>" \
+  -H "Accept: application/json" \
+  -F "image=@photo.jpg" | jq '.data.id')
+
+# Step 2: create the moment
 curl -X POST http://moments.test/api/v1/moments \
   -H "Authorization: Bearer <token>" \
   -H "Accept: application/json" \
-  -F "images[]=@photo.jpg"
+  -H "Content-Type: application/json" \
+  -d "{\"images\": [$IMAGE_ID]}"
 ```
 
 **Text and image:**
 ```bash
+# Step 1: upload the image
+IMAGE_ID=$(curl -s -X POST http://moments.test/api/v1/images \
+  -H "Authorization: Bearer <token>" \
+  -H "Accept: application/json" \
+  -F "image=@photo.jpg" | jq '.data.id')
+
+# Step 2: create the moment
 curl -X POST http://moments.test/api/v1/moments \
   -H "Authorization: Bearer <token>" \
   -H "Accept: application/json" \
-  -F "body=A moment with a photo" \
-  -F "images[]=@photo.jpg"
+  -H "Content-Type: application/json" \
+  -d "{\"body\": \"A moment with a photo\", \"images\": [$IMAGE_ID]}"
 ```

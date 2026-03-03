@@ -3,9 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreMomentRequest;
+use App\Http\Requests\Api\StoreMomentRequest;
 use App\Http\Resources\MomentResource;
 use App\Models\Moment;
+use App\Models\MomentImage;
 use Illuminate\Http\JsonResponse;
 
 class MomentController extends Controller
@@ -19,9 +20,10 @@ class MomentController extends Controller
             'body' => $validated['body'] ?? null,
         ]);
 
-        foreach ($request->file('images', []) as $file) {
-            $disk = config('moments.image_disk');
-            $moment->images()->create(['path' => $file->store('moments', $disk), 'disk' => $disk]);
+        if (! empty($validated['images'])) {
+            MomentImage::whereIn('id', $validated['images'])
+                ->whereNull('moment_id')
+                ->update(['moment_id' => $moment->id]);
         }
 
         $moment->load('images');

@@ -1,9 +1,8 @@
 <?php
 
 use App\Models\Moment;
+use App\Models\MomentImage;
 use App\Models\User;
-use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
 
 it('creates a moment with body only and returns 201', function () {
     $user = User::factory()->create();
@@ -17,36 +16,33 @@ it('creates a moment with body only and returns 201', function () {
     $this->assertDatabaseHas('moments', ['user_id' => $user->id, 'body' => 'Hello API']);
 });
 
-it('creates a moment with image only and returns 201', function () {
-    Storage::fake('public');
-
+it('creates a moment with pre-uploaded image IDs and returns 201', function () {
     $user = User::factory()->create();
     $token = $user->createToken('test')->plainTextToken;
 
+    $image = MomentImage::factory()->create(['moment_id' => null]);
+
     $this->withToken($token)
-        ->postJson('/api/v1/moments', [
-            'images' => [UploadedFile::fake()->image('photo.jpg')],
-        ])
+        ->postJson('/api/v1/moments', ['images' => [$image->id]])
         ->assertCreated()
         ->assertJsonPath('data.body', null);
 
     $moment = Moment::where('user_id', $user->id)->first();
     expect($moment->images()->count())->toBe(1);
+    $this->assertDatabaseHas('moment_images', ['id' => $image->id, 'moment_id' => $moment->id]);
 });
 
-it('creates a moment with body and multiple images and returns image urls', function () {
-    Storage::fake('public');
-
+it('creates a moment with body and multiple image IDs and returns image urls', function () {
     $user = User::factory()->create();
     $token = $user->createToken('test')->plainTextToken;
+
+    $imageA = MomentImage::factory()->create(['moment_id' => null]);
+    $imageB = MomentImage::factory()->create(['moment_id' => null]);
 
     $response = $this->withToken($token)
         ->postJson('/api/v1/moments', [
             'body' => 'With images',
-            'images' => [
-                UploadedFile::fake()->image('a.jpg'),
-                UploadedFile::fake()->image('b.jpg'),
-            ],
+            'images' => [$imageA->id, $imageB->id],
         ])
         ->assertCreated();
 
@@ -55,7 +51,7 @@ it('creates a moment with body and multiple images and returns image urls', func
     expect($images[0])->toHaveKeys(['id', 'url']);
 });
 
-it('rejects a request with neither body nor image', function () {
+it('rejects a request with neither body nor images', function () {
     $user = User::factory()->create();
     $token = $user->createToken('test')->plainTextToken;
 
@@ -65,14 +61,15 @@ it('rejects a request with neither body nor image', function () {
         ->assertJsonValidationErrors('body');
 });
 
-it('rejects an invalid file type', function () {
+it('rejects already-attached image IDs with 422', function () {
     $user = User::factory()->create();
     $token = $user->createToken('test')->plainTextToken;
 
+    $moment = Moment::factory()->create();
+    $image = MomentImage::factory()->create(['moment_id' => $moment->id]);
+
     $this->withToken($token)
-        ->postJson('/api/v1/moments', [
-            'images' => [UploadedFile::fake()->create('doc.pdf', 100, 'application/pdf')],
-        ])
+        ->postJson('/api/v1/moments', ['images' => [$image->id]])
         ->assertUnprocessable()
         ->assertJsonValidationErrors('images.0');
 });
