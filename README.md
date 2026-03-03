@@ -10,9 +10,10 @@ A personal micro-blog for publishing short posts to a public timeline. Built wit
 - **Post management** — create, edit, and delete posts when logged in
 - **Image attachments** — moments can include multiple images; body is optional when at least one image is present
 - **Image optimisation** — images are resized server-side via Glide to match their display dimensions, reducing bandwidth without sacrificing quality
+- **Image lightbox** — clicking any image opens it full-screen using the native `<dialog>` element; no JavaScript framework required
 - **Permalinks** — each moment has its own page
 - **RSS feed** — subscribe at `/feed` with any feed reader
-- **API access** — post moments programmatically via a REST API using bearer tokens
+- **API access** — post moments programmatically via a REST API using bearer tokens; machine-readable spec at `openapi.yaml`
 - **API token management** — create and revoke personal access tokens from the web UI at `/tokens`
 
 > [!NOTE]
@@ -69,7 +70,7 @@ If using the default `public` disk, run `php artisan storage:link` once to make 
 
 ## API
 
-Moments exposes a REST API for posting moments from external clients.
+Moments exposes a REST API for posting moments from external clients. A full OpenAPI 3.1 description is available at [`openapi.yaml`](openapi.yaml) in the project root — import it into any OpenAPI-compatible tool (Insomnia, Postman, Scalar, etc.) to explore and test the API.
 
 ### Getting an API token
 

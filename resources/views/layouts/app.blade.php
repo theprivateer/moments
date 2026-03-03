@@ -6,6 +6,7 @@
     <title>Moments</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="alternate" type="application/rss+xml" title="Moments" href="{{ route('feed') }}">
+    @livewireStyles
 </head>
 <body class="bg-gray-50 text-gray-900 antialiased">
     <header class="bg-white border-b border-gray-200">
@@ -29,6 +30,7 @@
     <main class="max-w-xl mx-auto px-4 py-8">
         @yield('content')
     </main>
+    @livewireScripts
     <dialog
         id="lightbox"
         onclick="this.close()"
