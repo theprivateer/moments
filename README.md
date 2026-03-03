@@ -9,7 +9,7 @@ A personal micro-blog for publishing short posts to a public timeline. Built wit
 - **Single-author** — one user account owns the blog
 - **Post management** — create, edit, and delete posts when logged in
 - **Image attachments** — moments can include multiple images; body is optional when at least one image is present
-- **Image optimisation** — images are resized server-side via Glide to match their display dimensions, reducing bandwidth without sacrificing quality
+- **Image optimisation** — images are resized server-side via [Glide](https://glide.thephpleague.com) to match their display dimensions, reducing bandwidth without sacrificing quality
 - **Image lightbox** — clicking any image opens it full-screen using the native `<dialog>` element; no JavaScript framework required
 - **Permalinks** — each moment has its own page
 - **RSS feed** — subscribe at `/feed` with any feed reader
@@ -185,6 +185,10 @@ curl -X POST http://moments.test/api/v1/moments \
   -H "Content-Type: application/json" \
   -d "{\"body\": \"A moment with a photo\", \"images\": [$IMAGE_ID]}"
 ```
+
+## Clients
+
+- **[Moments for iOS](https://github.com/theprivateer/moments-ios)** — a lightweight iOS client for posting to your Moments blog via the REST API.
 
 ## Maintenance
 
