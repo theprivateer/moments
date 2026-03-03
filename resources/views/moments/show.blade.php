@@ -17,20 +17,20 @@
             @endcan
         </div>
 
+        @if ($moment->body)
+            <div class="prose text-gray-800">
+                {!! $moment->renderedBody() !!}
+            </div>
+        @endif
+
         @foreach ($moment->images as $image)
             <button
                 type="button"
                 onclick="openLightbox('{{ $image->glideUrl(1200) }}')"
                 class="block w-full cursor-zoom-in"
             >
-                <img src="{{ $image->glideUrl(1200) }}" alt="Moment image" class="w-full rounded-md mb-3 object-cover aspect-square">
+                <img src="{{ $image->glideUrl(800) }}" alt="Moment image" class="w-full rounded-md mb-3 object-cover aspect-square">
             </button>
         @endforeach
-
-        @if ($moment->body)
-            <div class="prose text-gray-800">
-                {!! $moment->renderedBody() !!}
-            </div>
-        @endif
     </article>
 @endsection
