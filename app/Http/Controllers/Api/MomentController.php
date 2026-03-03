@@ -8,9 +8,20 @@ use App\Http\Resources\MomentResource;
 use App\Models\Moment;
 use App\Models\MomentImage;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class MomentController extends Controller
 {
+    public function index(): AnonymousResourceCollection
+    {
+        $moments = Moment::query()
+            ->with('images')
+            ->latest()
+            ->paginate(20);
+
+        return MomentResource::collection($moments);
+    }
+
     public function store(StoreMomentRequest $request): JsonResponse
     {
         $validated = $request->validated();

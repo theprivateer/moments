@@ -26,7 +26,7 @@ class MomentImage extends Model
 
     public function glideUrl(int $width): string
     {
-        $builder = UrlBuilderFactory::create('/img/', config('moments.glide_sign_key'));
+        $builder = UrlBuilderFactory::create(url('/img/'), config('moments.glide_sign_key'));
 
         return $builder->getUrl($this->path, ['w' => $width, 'disk' => $this->disk]);
     }

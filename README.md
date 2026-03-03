@@ -80,6 +80,7 @@ Log in, visit `/tokens`, give the token a name, and click **Create**. Copy the t
 
 | Method | Endpoint | Auth | Description |
 |--------|----------|------|-------------|
+| `GET`  | `/api/v1/moments` | Bearer token | Retrieve the timeline (paginated, 20 per page, newest first) |
 | `POST` | `/api/v1/images` | Bearer token | Upload an image, receive an image ID |
 | `POST` | `/api/v1/moments` | Bearer token | Create a moment, referencing uploaded image IDs |
 
@@ -92,6 +93,52 @@ Posting a moment with images requires two steps:
 
 > [!IMPORTANT]
 > All API requests must include the `Accept: application/json` header. Without it, validation errors will return an HTML redirect (302) instead of a JSON `422` error response.
+
+### GET /api/v1/moments
+
+Returns the paginated timeline, newest first.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `page` | integer | No | Page number (default: 1). 20 moments per page. |
+
+**200 OK** on success:
+
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "body": "Hello from the API",
+      "body_html": "<p>Hello from the API</p>\n",
+      "created_at": "2026-02-28T09:00:00.000000Z",
+      "images": [
+        { "id": 42, "url": "https://moments.test/img/moments/photo.jpg?s=..." }
+      ]
+    }
+  ],
+  "links": {
+    "first": "https://moments.test/api/v1/moments?page=1",
+    "last": "https://moments.test/api/v1/moments?page=3",
+    "prev": null,
+    "next": "https://moments.test/api/v1/moments?page=2"
+  },
+  "meta": {
+    "current_page": 1,
+    "from": 1,
+    "last_page": 3,
+    "path": "https://moments.test/api/v1/moments",
+    "per_page": 20,
+    "to": 20,
+    "total": 42
+  }
+}
+```
+
+| Status | Meaning |
+|--------|---------|
+| `200 OK` | Success |
+| `401 Unauthorized` | Missing or invalid token |
 
 ### POST /api/v1/images
 
@@ -144,6 +191,13 @@ Send as `application/json`. At least one of `body` or `images` must be provided.
 | `422 Unprocessable` | Validation failed |
 
 ### Examples
+
+**Fetch the timeline (page 1):**
+```bash
+curl http://moments.test/api/v1/moments \
+  -H "Authorization: Bearer <token>" \
+  -H "Accept: application/json"
+```
 
 **Text-only moment:**
 ```bash
