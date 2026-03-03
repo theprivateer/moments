@@ -185,3 +185,29 @@ curl -X POST http://moments.test/api/v1/moments \
   -H "Content-Type: application/json" \
   -d "{\"body\": \"A moment with a photo\", \"images\": [$IMAGE_ID]}"
 ```
+
+## Maintenance
+
+### Scheduled tasks
+
+The application includes a scheduled task that automatically removes uploaded images
+that were never attached to a moment (orphaned by an incomplete API upload workflow).
+It runs every 5 minutes and only removes images older than 20 minutes, giving
+in-flight uploads time to complete.
+
+To run the Laravel scheduler (required for automatic cleanup):
+
+```bash
+php artisan schedule:work
+```
+
+> **Note:** `composer run dev` does not start the scheduler. For local development,
+> run `php artisan schedule:work` in a separate terminal or clean up orphans manually.
+
+### Manual cleanup
+
+To delete orphaned images on demand:
+
+```bash
+php artisan moments:delete-orphan-images
+```
