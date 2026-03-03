@@ -7,6 +7,11 @@ use App\Models\User;
 
 class MomentPolicy
 {
+    public function create(User $user): bool
+    {
+        return true;
+    }
+
     public function update(User $user, Moment $moment): bool
     {
         return $user->id === $moment->user_id;

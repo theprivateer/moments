@@ -25,11 +25,14 @@ class CreateMoment extends Component
 
     public function removeImage(int $index): void
     {
+        $this->authorize('create', Moment::class);
         array_splice($this->images, $index, 1);
     }
 
     public function save(): void
     {
+        $this->authorize('create', Moment::class);
+
         $this->validate([
             'body' => [
                 Rule::requiredIf(fn () => empty($this->images)),

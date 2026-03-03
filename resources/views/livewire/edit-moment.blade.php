@@ -29,26 +29,26 @@
         @if (count($existingImages))
             <div class="mb-4">
                 <p class="text-sm font-medium text-gray-700 mb-2">Current images</p>
-                <div class="flex flex-wrap gap-3">
+                <div class="flex flex-wrap gap-3" x-data="{ toRemove: $wire.entangle('imagesToRemove') }">
                     @foreach ($existingImages as $image)
                         <div wire:key="existing-{{ $image['id'] }}" class="relative">
                             <img
                                 src="{{ $image['glideUrl'] }}"
                                 alt="Moment image"
-                                class="h-24 w-24 object-cover rounded-md {{ in_array($image['id'], $imagesToRemove) ? 'opacity-40' : '' }}"
+                                :class="toRemove.includes('{{ $image['id'] }}') ? 'opacity-40' : ''"
+                                class="h-24 w-24 object-cover rounded-md"
                             >
                             <label class="absolute inset-0 flex items-center justify-center cursor-pointer">
                                 <input
                                     type="checkbox"
-                                    wire:model.live="imagesToRemove"
+                                    x-model="toRemove"
                                     value="{{ $image['id'] }}"
                                     class="sr-only"
                                 >
-                                @if (in_array($image['id'], $imagesToRemove))
-                                    <span class="bg-red-500/80 text-white text-xs px-1.5 py-0.5 rounded">Remove</span>
-                                @else
-                                    <span class="bg-black/40 text-white text-xs px-1.5 py-0.5 rounded opacity-0 hover:opacity-100 transition-opacity">Remove</span>
-                                @endif
+                                <span
+                                    :class="toRemove.includes('{{ $image['id'] }}') ? 'bg-red-500/80 opacity-100' : 'bg-black/40 opacity-0 hover:opacity-100'"
+                                    class="text-white text-xs px-1.5 py-0.5 rounded transition-opacity"
+                                >Remove</span>
                             </label>
                         </div>
                     @endforeach

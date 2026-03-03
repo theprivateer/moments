@@ -49,6 +49,7 @@ class EditMoment extends Component
 
     public function removeNewImage(int $index): void
     {
+        $this->authorize('update', Moment::findOrFail($this->momentId));
         array_splice($this->newImages, $index, 1);
     }
 

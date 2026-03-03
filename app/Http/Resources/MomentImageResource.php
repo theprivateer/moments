@@ -12,7 +12,7 @@ class MomentImageResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'url' => $this->url(),
+            'url' => $this->glideUrl(800),
         ];
     }
 }
