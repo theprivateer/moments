@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\StoreMomentRequest;
+use App\Http\Requests\Api\UpdateMomentRequest;
 use App\Http\Resources\MomentResource;
 use App\Models\Moment;
 use App\Models\MomentImage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Storage;
 
 class MomentController extends Controller
 {
@@ -40,5 +42,34 @@ class MomentController extends Controller
         $moment->load('images');
 
         return (new MomentResource($moment))->response()->setStatusCode(201);
+    }
+
+    public function update(UpdateMomentRequest $request, Moment $moment): JsonResponse
+    {
+        $this->authorize('update', $moment);
+
+        $validated = $request->validated();
+
+        if (! empty($validated['remove_images'])) {
+            $toRemove = $moment->images()->whereIn('id', $validated['remove_images'])->get();
+            foreach ($toRemove as $image) {
+                Storage::disk($image->disk)->delete($image->path);
+                $image->delete();
+            }
+        }
+
+        if (! empty($validated['add_images'])) {
+            MomentImage::whereIn('id', $validated['add_images'])
+                ->whereNull('moment_id')
+                ->update(['moment_id' => $moment->id]);
+        }
+
+        if (array_key_exists('body', $validated)) {
+            $moment->update(['body' => $validated['body']]);
+        }
+
+        $moment->load('images');
+
+        return (new MomentResource($moment))->response();
     }
 }

@@ -83,6 +83,7 @@ Log in, visit `/tokens`, give the token a name, and click **Create**. Copy the t
 | `GET`  | `/api/v1/moments` | Bearer token | Retrieve the timeline (paginated, 20 per page, newest first) |
 | `POST` | `/api/v1/images` | Bearer token | Upload an image, receive an image ID |
 | `POST` | `/api/v1/moments` | Bearer token | Create a moment, referencing uploaded image IDs |
+| `PATCH` | `/api/v1/moments/{moment}` | Bearer token | Update a moment's body, add new images, or remove existing images |
 
 ### Two-step workflow
 
@@ -190,6 +191,26 @@ Send as `application/json`. At least one of `body` or `images` must be provided.
 | `401 Unauthorized` | Missing or invalid token |
 | `422 Unprocessable` | Validation failed |
 
+### PATCH /api/v1/moments/{moment}
+
+Send as `application/json`. All fields are optional (PATCH semantics — only sent fields are changed). At least one of `body` or images must remain after the update.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `body` | string | Required if no images would remain | Updated Markdown text (max 10,000 chars). Omit to leave the existing body unchanged. |
+| `add_images` | integer[] | No | IDs of pre-uploaded images to attach (from `POST /api/v1/images`). |
+| `remove_images` | integer[] | No | IDs of existing images to detach and permanently delete. |
+
+**200 OK** on success — returns the full updated moment resource (same shape as `POST /api/v1/moments`).
+
+| Status | Meaning |
+|--------|---------|
+| `200 OK` | Resource updated successfully |
+| `401 Unauthorized` | Missing or invalid token |
+| `403 Forbidden` | Token does not own this moment |
+| `404 Not Found` | Moment does not exist |
+| `422 Unprocessable` | Validation failed |
+
 ### Examples
 
 **Fetch the timeline (page 1):**
@@ -222,6 +243,31 @@ curl -X POST http://moments.test/api/v1/moments \
   -H "Accept: application/json" \
   -H "Content-Type: application/json" \
   -d "{\"images\": [$IMAGE_ID]}"
+```
+
+**Update a moment's body:**
+```bash
+curl -X PATCH http://moments.test/api/v1/moments/1 \
+  -H "Authorization: Bearer <token>" \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -d '{"body": "Corrected text"}'
+```
+
+**Swap an image on a moment:**
+```bash
+# Step 1: upload the replacement image
+NEW_ID=$(curl -s -X POST http://moments.test/api/v1/images \
+  -H "Authorization: Bearer <token>" \
+  -H "Accept: application/json" \
+  -F "image=@new-photo.jpg" | jq '.data.id')
+
+# Step 2: patch the moment — add the new image, remove the old one (id=42)
+curl -X PATCH http://moments.test/api/v1/moments/1 \
+  -H "Authorization: Bearer <token>" \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -d "{\"add_images\": [$NEW_ID], \"remove_images\": [42]}"
 ```
 
 **Text and image:**

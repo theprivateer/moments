@@ -41,9 +41,14 @@ Moments is a single-author micro-blog. Posts ("moments") appear on a public time
 - `moments()` — `HasMany` → `Moment`
 - Uses `HasApiTokens` (Sanctum) alongside `HasFactory`, `Notifiable`
 
-### Validation — `StoreMomentRequest`
+### Validation
 
-Shared by the web form and the API. The key rule: **`body` is required only when no images are uploaded** (and vice versa). At least one must be present.
+**`StoreMomentRequest`** (`app/Http/Requests/Api/StoreMomentRequest.php`) — shared by the web form and `POST /api/v1/moments`. Key rule: `body` is required when no `images` are provided (and vice versa). At least one must be present.
+
+**`UpdateMomentRequest`** (`app/Http/Requests/Api/UpdateMomentRequest.php`) — used by `PATCH /api/v1/moments/{moment}`. Key rules:
+- `body` is required only when remaining images ≤ 0 **and** the moment's existing body is also null (PATCH semantics: omitting `body` preserves the current value)
+- `add_images.*`: must exist in `moment_images` with `moment_id IS NULL` (unattached uploads only)
+- `remove_images.*`: must exist in `moment_images` scoped to the route moment (prevents cross-moment image removal)
 
 ### Image Storage
 
