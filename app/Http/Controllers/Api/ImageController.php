@@ -12,6 +12,8 @@ class ImageController extends Controller
 {
     public function store(StoreImageRequest $request): JsonResponse
     {
+        $this->authorize('create', \App\Models\Moment::class);
+
         $disk = config('moments.image_disk');
 
         $image = MomentImage::create([

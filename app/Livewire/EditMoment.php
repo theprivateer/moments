@@ -55,6 +55,9 @@ class EditMoment extends Component
 
     public function save(): void
     {
+        $moment = Moment::findOrFail($this->momentId);
+        $this->authorize('update', $moment);
+
         $remaining = count($this->existingImages) - count($this->imagesToRemove);
 
         $this->validate([
@@ -67,9 +70,6 @@ class EditMoment extends Component
             'newImages.*' => ['image', 'max:'.config('moments.image_max_size')],
             'imagesToRemove.*' => ['integer', 'exists:moment_images,id'],
         ]);
-
-        $moment = Moment::findOrFail($this->momentId);
-        $this->authorize('update', $moment);
 
         $toRemove = $moment->images()->whereIn('id', $this->imagesToRemove)->get();
         foreach ($toRemove as $image) {

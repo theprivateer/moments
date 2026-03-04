@@ -27,6 +27,8 @@ class MomentController extends Controller
 
     public function store(StoreMomentRequest $request): RedirectResponse
     {
+        $this->authorize('create', Moment::class);
+
         $validated = $request->validated();
 
         $moment = Moment::create([
