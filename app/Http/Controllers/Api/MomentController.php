@@ -10,6 +10,7 @@ use App\Models\Moment;
 use App\Models\MomentImage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
 
 class MomentController extends Controller
@@ -71,5 +72,20 @@ class MomentController extends Controller
         $moment->load('images');
 
         return (new MomentResource($moment))->response();
+    }
+
+    public function destroy(Moment $moment): Response
+    {
+        $this->authorize('delete', $moment);
+
+        $moment->load('images');
+
+        foreach ($moment->images as $image) {
+            Storage::disk($image->disk)->delete($image->path);
+        }
+
+        $moment->delete();
+
+        return response()->noContent();
     }
 }

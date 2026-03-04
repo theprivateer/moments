@@ -10,5 +10,6 @@ Route::prefix('v1')->group(function () {
         Route::get('/moments', [MomentController::class, 'index'])->name('api.v1.moments.index');
         Route::post('/moments', [MomentController::class, 'store'])->name('api.v1.moments.store');
         Route::patch('/moments/{moment}', [MomentController::class, 'update'])->name('api.v1.moments.update');
+        Route::delete('/moments/{moment}', [MomentController::class, 'destroy'])->name('api.v1.moments.destroy');
     });
 });

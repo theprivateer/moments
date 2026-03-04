@@ -84,6 +84,7 @@ Log in, visit `/tokens`, give the token a name, and click **Create**. Copy the t
 | `POST` | `/api/v1/images` | Bearer token | Upload an image, receive an image ID |
 | `POST` | `/api/v1/moments` | Bearer token | Create a moment, referencing uploaded image IDs |
 | `PATCH` | `/api/v1/moments/{moment}` | Bearer token | Update a moment's body, add new images, or remove existing images |
+| `DELETE` | `/api/v1/moments/{moment}` | Bearer token | Permanently delete a moment and all its images |
 
 ### Two-step workflow
 
@@ -211,6 +212,17 @@ Send as `application/json`. All fields are optional (PATCH semantics — only se
 | `404 Not Found` | Moment does not exist |
 | `422 Unprocessable` | Validation failed |
 
+### DELETE /api/v1/moments/{moment}
+
+No request body. Deletes the moment and permanently removes all attached image files from storage.
+
+| Status | Meaning |
+|--------|---------|
+| `204 No Content` | Moment deleted successfully |
+| `401 Unauthorized` | Missing or invalid token |
+| `403 Forbidden` | Token does not own this moment |
+| `404 Not Found` | Moment does not exist |
+
 ### Examples
 
 **Fetch the timeline (page 1):**
@@ -284,6 +296,13 @@ curl -X POST http://moments.test/api/v1/moments \
   -H "Accept: application/json" \
   -H "Content-Type: application/json" \
   -d "{\"body\": \"A moment with a photo\", \"images\": [$IMAGE_ID]}"
+```
+
+**Delete a moment:**
+```bash
+curl -X DELETE http://moments.test/api/v1/moments/1 \
+  -H "Authorization: Bearer <token>" \
+  -H "Accept: application/json"
 ```
 
 ## Clients

@@ -96,7 +96,7 @@ Key details:
 
 ### Authorization
 
-`MomentPolicy` enforces ownership for `update` and `delete`. Controllers call `$this->authorize('update', $moment)`. The `TokenController` uses `abort_if($token->tokenable_id !== $request->user()->id, 403)` for manual ownership checks.
+`MomentPolicy` enforces ownership for `update` and `delete`. Controllers call `$this->authorize('update', $moment)` / `$this->authorize('delete', $moment)`. The `TokenController` uses `abort_if($token->tokenable_id !== $request->user()->id, 403)` for manual ownership checks.
 
 ### Authentication
 

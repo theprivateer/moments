@@ -196,6 +196,37 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ValidationErrorResponse'
+    delete:
+      summary: Delete a moment
+      tags: [moments]
+      parameters:
+        - name: moment
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the moment to delete
+      responses:
+        '204':
+          description: Moment deleted
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Moment not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
 components:
   securitySchemes:
