@@ -17,8 +17,13 @@
             </label>
             <textarea
                 id="body"
+                x-data="{
+                    init() { this.resize(); this.$watch('$wire.body', () => this.resize()); },
+                    resize() { this.$el.style.height = 'auto'; this.$el.style.height = this.$el.scrollHeight + 'px'; }
+                }"
+                @input="resize()"
                 wire:model="body"
-                rows="6"
+                style="min-height: 8rem"
                 class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-hidden focus:ring-2 focus:ring-gray-400 resize-none"
             ></textarea>
             @error('body')
