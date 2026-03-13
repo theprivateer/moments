@@ -1,8 +1,10 @@
 <?php
 
+use App\Jobs\PublishMomentToThreads;
 use App\Models\Moment;
 use App\Models\MomentImage;
 use App\Models\User;
+use Illuminate\Support\Facades\Queue;
 
 it('creates a moment with body only and returns 201', function () {
     $user = User::factory()->create();
@@ -90,4 +92,80 @@ it('associates the moment with the token owner', function () {
 
     $this->assertDatabaseHas('moments', ['user_id' => $user->id, 'body' => 'Mine']);
     $this->assertDatabaseMissing('moments', ['user_id' => $other->id]);
+});
+
+it('dispatches a Threads publish job when integration is enabled and override is omitted', function () {
+    Queue::fake();
+
+    config([
+        'moments.threads.enabled' => true,
+        'moments.threads.default_cross_post' => true,
+        'moments.threads.user_id' => '12345',
+        'moments.threads.access_token' => 'test-token',
+    ]);
+
+    $user = User::factory()->create();
+    $token = $user->createToken('test')->plainTextToken;
+
+    $this->withToken($token)
+        ->postJson('/api/v1/moments', ['body' => 'Cross-post me'])
+        ->assertCreated();
+
+    Queue::assertPushed(PublishMomentToThreads::class, 1);
+    $this->assertDatabaseHas('moments', [
+        'user_id' => $user->id,
+        'threads_status' => 'pending',
+    ]);
+});
+
+it('does not dispatch a Threads publish job when request opts out', function () {
+    Queue::fake();
+
+    config([
+        'moments.threads.enabled' => true,
+        'moments.threads.default_cross_post' => true,
+        'moments.threads.user_id' => '12345',
+        'moments.threads.access_token' => 'test-token',
+    ]);
+
+    $user = User::factory()->create();
+    $token = $user->createToken('test')->plainTextToken;
+
+    $this->withToken($token)
+        ->postJson('/api/v1/moments', [
+            'body' => 'Do not cross-post',
+            'cross_post_to_threads' => false,
+        ])
+        ->assertCreated();
+
+    Queue::assertNotPushed(PublishMomentToThreads::class);
+    $this->assertDatabaseHas('moments', [
+        'user_id' => $user->id,
+        'threads_status' => 'skipped',
+    ]);
+});
+
+it('marks image-only moments as skipped and does not enqueue Threads publishing', function () {
+    Queue::fake();
+
+    config([
+        'moments.threads.enabled' => true,
+        'moments.threads.default_cross_post' => true,
+        'moments.threads.user_id' => '12345',
+        'moments.threads.access_token' => 'test-token',
+    ]);
+
+    $user = User::factory()->create();
+    $token = $user->createToken('test')->plainTextToken;
+    $image = MomentImage::factory()->create(['moment_id' => null]);
+
+    $this->withToken($token)
+        ->postJson('/api/v1/moments', ['images' => [$image->id]])
+        ->assertCreated();
+
+    Queue::assertNotPushed(PublishMomentToThreads::class);
+    $this->assertDatabaseHas('moments', [
+        'user_id' => $user->id,
+        'threads_status' => 'skipped',
+    ]);
 });

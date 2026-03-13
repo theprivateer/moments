@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\DispatchMomentCrossPost;
 use App\Http\Requests\StoreMomentRequest;
 use App\Http\Requests\UpdateMomentRequest;
 use App\Models\Moment;
@@ -11,6 +12,8 @@ use Illuminate\View\View;
 
 class MomentController extends Controller
 {
+    public function __construct(private readonly DispatchMomentCrossPost $dispatchMomentCrossPost) {}
+
     public function index(): View
     {
         $moments = Moment::query()->with(['user', 'images'])->latest()->simplePaginate(10);
@@ -40,6 +43,8 @@ class MomentController extends Controller
             $disk = config('moments.image_disk');
             $moment->images()->create(['path' => $file->store('moments', $disk), 'disk' => $disk]);
         }
+
+        $this->dispatchMomentCrossPost->handle($moment, $validated['cross_post_to_threads'] ?? null);
 
         return redirect()->route('moments.index');
     }

@@ -37,4 +37,24 @@ return [
     |
     */
     'image_max_size' => (int) env('MOMENTS_IMAGE_MAX_SIZE', 2048),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Threads Cross-Posting
+    |--------------------------------------------------------------------------
+    |
+    | Configure optional cross-posting to Threads when new moments are
+    | created. This integration is single-account and expects a Threads user
+    | ID plus an access token generated for that account.
+    |
+    */
+    'threads' => [
+        'enabled' => (bool) env('MOMENTS_THREADS_ENABLED', false),
+        'default_cross_post' => (bool) env('MOMENTS_THREADS_DEFAULT_CROSS_POST', true),
+        'user_id' => env('MOMENTS_THREADS_USER_ID'),
+        'access_token' => env('MOMENTS_THREADS_ACCESS_TOKEN'),
+        'api_base' => env('MOMENTS_THREADS_API_BASE', 'https://graph.threads.net'),
+        'api_version' => env('MOMENTS_THREADS_API_VERSION', 'v1.0'),
+        'max_text' => (int) env('MOMENTS_THREADS_MAX_TEXT', 500),
+    ],
 ];

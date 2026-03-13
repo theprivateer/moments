@@ -47,7 +47,12 @@
             @enderror
         </div>
 
-        <div class="flex justify-end">
+        <div class="flex items-center justify-between gap-3">
+            <label class="inline-flex items-center gap-2 text-sm text-gray-600">
+                <input type="checkbox" wire:model="crossPostToThreads" class="rounded border-gray-300 text-gray-900 focus:ring-gray-500">
+                <span>Post to Threads</span>
+            </label>
+
             <button
                 type="submit"
                 :disabled="uploading"

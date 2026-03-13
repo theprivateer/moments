@@ -1,9 +1,11 @@
 <?php
 
+use App\Jobs\PublishMomentToThreads;
 use App\Livewire\CreateMoment;
 use App\Models\Moment;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 
@@ -93,4 +95,56 @@ it('removes a pending image from the array', function () {
         ->set('images', [$file1, $file2])
         ->call('removeImage', 0)
         ->assertSet('images', fn ($images) => count($images) === 1);
+});
+
+it('uses the configured default value for cross-posting', function () {
+    config(['moments.threads.default_cross_post' => false]);
+
+    $user = User::factory()->create();
+
+    Livewire::actingAs($user)
+        ->test(CreateMoment::class)
+        ->assertSet('crossPostToThreads', false);
+});
+
+it('dispatches Threads publishing when toggle is enabled', function () {
+    Queue::fake();
+
+    config([
+        'moments.threads.enabled' => true,
+        'moments.threads.default_cross_post' => false,
+        'moments.threads.user_id' => '12345',
+        'moments.threads.access_token' => 'test-token',
+    ]);
+
+    $user = User::factory()->create();
+
+    Livewire::actingAs($user)
+        ->test(CreateMoment::class)
+        ->set('body', 'Hello Threads')
+        ->set('crossPostToThreads', true)
+        ->call('save');
+
+    Queue::assertPushed(PublishMomentToThreads::class, 1);
+});
+
+it('does not dispatch Threads publishing when toggle is disabled', function () {
+    Queue::fake();
+
+    config([
+        'moments.threads.enabled' => true,
+        'moments.threads.default_cross_post' => true,
+        'moments.threads.user_id' => '12345',
+        'moments.threads.access_token' => 'test-token',
+    ]);
+
+    $user = User::factory()->create();
+
+    Livewire::actingAs($user)
+        ->test(CreateMoment::class)
+        ->set('body', 'Local only')
+        ->set('crossPostToThreads', false)
+        ->call('save');
+
+    Queue::assertNotPushed(PublishMomentToThreads::class);
 });

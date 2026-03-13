@@ -107,6 +107,9 @@ paths:
                   items:
                     type: integer
                   description: IDs of pre-uploaded images (from POST /api/v1/images). Required when no body is supplied.
+                cross_post_to_threads:
+                  type: boolean
+                  description: Override whether this moment should be cross-posted to Threads.
       responses:
         '201':
           description: Moment created

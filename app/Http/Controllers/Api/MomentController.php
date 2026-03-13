@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Actions\DispatchMomentCrossPost;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\StoreMomentRequest;
 use App\Http\Requests\Api\UpdateMomentRequest;
@@ -15,6 +16,8 @@ use Illuminate\Support\Facades\Storage;
 
 class MomentController extends Controller
 {
+    public function __construct(private readonly DispatchMomentCrossPost $dispatchMomentCrossPost) {}
+
     public function index(): AnonymousResourceCollection
     {
         $moments = Moment::query()
@@ -41,6 +44,8 @@ class MomentController extends Controller
                 ->whereNull('moment_id')
                 ->update(['moment_id' => $moment->id]);
         }
+
+        $this->dispatchMomentCrossPost->handle($moment, $validated['cross_post_to_threads'] ?? null);
 
         $moment->load('images');
 

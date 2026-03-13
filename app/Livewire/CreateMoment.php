@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Actions\DispatchMomentCrossPost;
 use App\Models\Moment;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
@@ -13,8 +14,15 @@ class CreateMoment extends Component
 
     public string $body = '';
 
+    public bool $crossPostToThreads = true;
+
     /** @var array<int, \Livewire\Features\SupportFileUploads\TemporaryUploadedFile> */
     public array $images = [];
+
+    public function mount(): void
+    {
+        $this->crossPostToThreads = (bool) config('moments.threads.default_cross_post', true);
+    }
 
     public function updatedImages(): void
     {
@@ -34,6 +42,7 @@ class CreateMoment extends Component
         $this->authorize('create', Moment::class);
 
         $this->validate([
+            'crossPostToThreads' => ['boolean'],
             'body' => [
                 Rule::requiredIf(fn () => empty($this->images)),
                 'nullable',
@@ -49,6 +58,8 @@ class CreateMoment extends Component
             $disk = config('moments.image_disk');
             $moment->images()->create(['path' => $image->store('moments', $disk), 'disk' => $disk]);
         }
+
+        app(DispatchMomentCrossPost::class)->handle($moment, $this->crossPostToThreads);
 
         $this->redirect(route('moments.index'), navigate: false);
     }

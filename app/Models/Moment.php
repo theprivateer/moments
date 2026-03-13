@@ -14,6 +14,14 @@ class Moment extends Model
 
     protected $fillable = ['user_id', 'body'];
 
+    protected function casts(): array
+    {
+        return [
+            'threads_published_at' => 'datetime',
+            'threads_attempted_at' => 'datetime',
+        ];
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

@@ -15,6 +15,7 @@ A personal micro-blog for publishing short posts to a public timeline. Built wit
 - **RSS feed** — subscribe at `/feed` with any feed reader
 - **API access** — post moments programmatically via a REST API using bearer tokens; machine-readable spec at `openapi.yaml`
 - **API token management** — create and revoke personal access tokens from the web UI at `/tokens`
+- **Optional Threads cross-posting** — publish new text moments to a configured Threads account asynchronously
 
 > [!NOTE]
 > I am intentionally using **Claude Code** to help build and maintain this project as an exploration of using AI coding assistants. I have chosen this project as it is a reimagining of [an idea I had in early 2017](https://github.com/theprivateer/shortform), so the spec is fairly well documented.
@@ -64,6 +65,13 @@ Then visit [http://moments.test](http://moments.test) in your browser.
 |---|---|---|
 | `MOMENTS_IMAGE_DISK` | `public` | Filesystem disk for uploaded images. Set to `s3` to store images in S3. |
 | `MOMENTS_IMAGE_MAX_SIZE` | `2048` | Maximum image upload size in KB (default: 2048 = 2 MB). |
+| `MOMENTS_THREADS_ENABLED` | `false` | Enable automatic cross-posting to Threads for new moments. |
+| `MOMENTS_THREADS_DEFAULT_CROSS_POST` | `true` | Default state for per-moment Threads posting in UI/API when not explicitly provided. |
+| `MOMENTS_THREADS_USER_ID` | _(none)_ | Threads user ID used for publishing via the API. |
+| `MOMENTS_THREADS_ACCESS_TOKEN` | _(none)_ | Access token for the configured Threads user. |
+| `MOMENTS_THREADS_API_BASE` | `https://graph.threads.net` | Base URL for Threads API calls. |
+| `MOMENTS_THREADS_API_VERSION` | `v1.0` | Threads Graph API version segment. |
+| `MOMENTS_THREADS_MAX_TEXT` | `500` | Maximum text length sent to Threads before truncation with ellipsis. |
 | `GLIDE_SIGN_KEY` | _(none)_ | Secret key used to sign Glide image URLs. Generate with `php artisan tinker moments:glide-key`. |
 
 If using the default `public` disk, run `php artisan storage:link` once to make uploaded images publicly accessible.
@@ -169,6 +177,7 @@ Send as `application/json`. At least one of `body` or `images` must be provided.
 |-------|------|----------|-------------|
 | `body` | string | Required if no images | Moment text. Markdown is supported (max 10,000 chars). |
 | `images` | integer[] | Required if no body | IDs of pre-uploaded images (from `POST /api/v1/images`). |
+| `cross_post_to_threads` | boolean | No | Override default Threads cross-post behavior for this moment. |
 
 **201 Created** on success:
 

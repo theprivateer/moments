@@ -16,6 +16,7 @@ class StoreMomentRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'cross_post_to_threads' => ['nullable', 'boolean'],
             'body' => [
                 Rule::requiredIf(fn () => empty($this->input('images'))),
                 'nullable',
