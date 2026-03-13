@@ -1,8 +1,10 @@
 <?php
 
+use App\Http\Controllers\AtomFeedController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\FeedController;
 use App\Http\Controllers\GlideController;
+use App\Http\Controllers\JsonFeedController;
 use App\Http\Controllers\MomentController;
 use App\Http\Controllers\TokenController;
 use Illuminate\Support\Facades\Route;
@@ -14,6 +16,8 @@ Route::get('/img/{path}', GlideController::class)->where('path', '.*')->name('gl
 Route::get('/', [MomentController::class, 'index'])->name('moments.index');
 Route::get('/moments/{moment}', [MomentController::class, 'show'])->name('moments.show');
 Route::get('/feed', FeedController::class)->name('feed');
+Route::get('/feed/atom', AtomFeedController::class)->name('feed.atom');
+Route::get('/feed/json', JsonFeedController::class)->name('feed.json');
 
 // Authenticated moment actions
 Route::middleware('auth')->group(function () {
