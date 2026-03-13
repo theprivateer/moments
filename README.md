@@ -13,7 +13,7 @@ A personal micro-blog for publishing short posts to a public timeline. Built wit
 - **Image optimisation** — images are resized server-side via [Glide](https://glide.thephpleague.com) to match their display dimensions, reducing bandwidth without sacrificing quality
 - **Image lightbox** — clicking any image opens it full-screen using the native `<dialog>` element; no JavaScript framework required
 - **Permalinks** — each moment has its own page
-- **RSS feed** — subscribe at `/feed` with any feed reader
+- **RSS feed** — subscribe at `/feed` with any feed reader; also available as Atom 1.0 at `/feed/atom` and JSON Feed 1.1 at `/feed/json`; all three formats are linked via autodiscovery `<link>` tags so feed readers can detect them automatically
 - **API access** — post moments programmatically via a REST API using bearer tokens; machine-readable spec at `openapi.yaml`
 - **Account management** — update your name, email, and password from the `/account` page
 - **API token management** — create and revoke personal access tokens from the `/account` page

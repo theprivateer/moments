@@ -110,6 +110,23 @@ Key details:
 - `updatePassword` — validates via `UpdatePasswordRequest` (`current_password` string rule, new password with confirmation), flashes `password_updated`
 
 `GET /tokens` is a `Route::redirect` to `/account`; `POST /tokens` and `DELETE /tokens/{token}` remain on `TokenController` but redirect to `account.show`.
+### Syndication Feeds
+
+Three feed formats are served by invokable controllers following the same pattern: query the latest 20 moments with `user` and `images` eager-loaded, then return the appropriate response.
+
+| Format | Route | Controller | View / Response | Content-Type |
+|--------|-------|------------|-----------------|--------------|
+| RSS 2.0 | `/feed` (named `feed`) | `FeedController` | `feed.blade.php` | `application/rss+xml` |
+| Atom 1.0 | `/feed/atom` (named `feed.atom`) | `AtomFeedController` | `feed-atom.blade.php` | `application/atom+xml` |
+| JSON Feed 1.1 | `/feed/json` (named `feed.json`) | `JsonFeedController` | JSON array built in controller | `application/feed+json` |
+
+All three formats are linked in `layouts/app.blade.php` via `<link rel="alternate">` autodiscovery tags.
+
+**Image URLs in feeds:** Use `$image->url()` (not `$image->glideUrl()`) — feed readers are external clients that cannot resolve signed Glide URLs.
+
+**Feed title logic:** `$moment->body ? Str::limit(strip_tags($moment->renderedBody()), 60) : 'Moment - '.$moment->created_at->format('j M Y')`
+
+The Atom feed also passes `$user` (via `User::first()`) to the view for the `<author>` element.
 
 ### Authentication
 
