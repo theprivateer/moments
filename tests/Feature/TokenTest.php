@@ -7,7 +7,7 @@ it('lets an authenticated user view the tokens page', function () {
 
     $this->actingAs($user)
         ->get('/tokens')
-        ->assertSuccessful();
+        ->assertRedirect('/account');
 });
 
 it('redirects a guest to login', function () {
@@ -19,7 +19,7 @@ it('creates a token with a name', function () {
 
     $this->actingAs($user)
         ->post('/tokens', ['name' => 'My App'])
-        ->assertRedirect('/tokens');
+        ->assertRedirect('/account');
 
     $this->assertDatabaseHas('personal_access_tokens', [
         'tokenable_id' => $user->id,
@@ -33,7 +33,7 @@ it('flashes the plain text token to the session once', function () {
 
     $this->actingAs($user)
         ->post('/tokens', ['name' => 'My App'])
-        ->assertRedirect('/tokens')
+        ->assertRedirect('/account')
         ->assertSessionHas('plain_text_token');
 });
 
@@ -52,7 +52,7 @@ it('can delete its own token', function () {
 
     $this->actingAs($user)
         ->delete("/tokens/{$pat->id}")
-        ->assertRedirect('/tokens');
+        ->assertRedirect('/account');
 
     $this->assertDatabaseMissing('personal_access_tokens', ['id' => $pat->id]);
 });

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AtomFeedController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\FeedController;
@@ -25,7 +26,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/moments/{moment}/edit', [MomentController::class, 'edit'])->name('moments.edit');
     Route::patch('/moments/{moment}', [MomentController::class, 'update'])->name('moments.update');
     Route::delete('/moments/{moment}', [MomentController::class, 'destroy'])->name('moments.destroy');
-    Route::get('/tokens', [TokenController::class, 'index'])->name('tokens.index');
+    Route::get('/account', [AccountController::class, 'show'])->name('account.show');
+    Route::patch('/account/profile', [AccountController::class, 'updateProfile'])->name('account.profile');
+    Route::patch('/account/password', [AccountController::class, 'updatePassword'])->name('account.password');
+    Route::redirect('/tokens', '/account')->name('tokens.index');
     Route::post('/tokens', [TokenController::class, 'store'])->name('tokens.store');
     Route::delete('/tokens/{token}', [TokenController::class, 'destroy'])->name('tokens.destroy');
     Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');

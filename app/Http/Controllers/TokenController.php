@@ -21,7 +21,7 @@ class TokenController extends Controller
     {
         $token = $request->user()->createToken($request->validated()['name']);
 
-        return redirect()->route('tokens.index')
+        return redirect()->route('account.show')
             ->with('plain_text_token', $token->plainTextToken);
     }
 
@@ -30,6 +30,6 @@ class TokenController extends Controller
         abort_if($token->tokenable_id !== $request->user()->id, 403);
         $token->delete();
 
-        return redirect()->route('tokens.index');
+        return redirect()->route('account.show');
     }
 }
