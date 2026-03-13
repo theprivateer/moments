@@ -102,6 +102,24 @@ Key details:
 
 `config('moments.intro')` (env `MOMENTS_INTRO`) — optional Markdown string rendered above the timeline. `MomentController::index()` reads this config, passes it through `Str::markdown()` with `html_input => strip` and `allow_unsafe_links => false`, and passes the resulting HTML (or `null`) to `moments.index` as `$intro`. The view renders it only when non-null.
 
+### Syndication Feeds
+
+Three feed formats are served by invokable controllers following the same pattern: query the latest 20 moments with `user` and `images` eager-loaded, then return the appropriate response.
+
+| Format | Route | Controller | View / Response | Content-Type |
+|--------|-------|------------|-----------------|--------------|
+| RSS 2.0 | `/feed` (named `feed`) | `FeedController` | `feed.blade.php` | `application/rss+xml` |
+| Atom 1.0 | `/feed/atom` (named `feed.atom`) | `AtomFeedController` | `feed-atom.blade.php` | `application/atom+xml` |
+| JSON Feed 1.1 | `/feed/json` (named `feed.json`) | `JsonFeedController` | JSON array built in controller | `application/feed+json` |
+
+All three formats are linked in `layouts/app.blade.php` via `<link rel="alternate">` autodiscovery tags.
+
+**Image URLs in feeds:** Use `$image->url()` (not `$image->glideUrl()`) — feed readers are external clients that cannot resolve signed Glide URLs.
+
+**Feed title logic:** `$moment->body ? Str::limit(strip_tags($moment->renderedBody()), 60) : 'Moment - '.$moment->created_at->format('j M Y')`
+
+The Atom feed also passes `$user` (via `User::first()`) to the view for the `<author>` element.
+
 ### Authentication
 
 - **Web** — session-based (`middleware('auth')`), managed by `Auth\LoginController`

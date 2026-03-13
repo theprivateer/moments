@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ config('app.name', 'Moments') }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <link rel="alternate" type="application/rss+xml" title="Moments" href="{{ route('feed') }}">
+    <link rel="alternate" type="application/rss+xml" title="{{ config('app.name') }}" href="{{ route('feed') }}">
+    <link rel="alternate" type="application/atom+xml" title="{{ config('app.name') }}" href="{{ route('feed.atom') }}">
+    <link rel="alternate" type="application/feed+json" title="{{ config('app.name') }}" href="{{ route('feed.json') }}">
     @livewireStyles
 </head>
 <body class="bg-gray-50 text-gray-900 antialiased">
