@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateMomentRequest;
 use App\Models\Moment;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class MomentController extends Controller
@@ -15,7 +16,11 @@ class MomentController extends Controller
     {
         $moments = Moment::query()->with(['user', 'images'])->latest()->simplePaginate(10);
 
-        return view('moments.index', ['moments' => $moments]);
+        $intro = config('moments.intro')
+            ? Str::markdown(config('moments.intro'), ['html_input' => 'strip', 'allow_unsafe_links' => false])
+            : null;
+
+        return view('moments.index', ['moments' => $moments, 'intro' => $intro]);
     }
 
     public function show(Moment $moment): View

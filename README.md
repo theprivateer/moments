@@ -4,6 +4,7 @@ A personal micro-blog for publishing short posts to a public timeline. Built wit
 
 ## Features
 
+- **Timeline introduction** — optional Markdown bio or greeting displayed above the timeline, configured via `MOMENTS_INTRO` in `.env`
 - **Public timeline** — all posts are visible to anyone without an account
 - **Markdown rendering** — post content is written and rendered in Markdown
 - **Single-author** — one user account owns the blog
@@ -64,6 +65,7 @@ Then visit [http://moments.test](http://moments.test) in your browser.
 |---|---|---|
 | `MOMENTS_IMAGE_DISK` | `public` | Filesystem disk for uploaded images. Set to `s3` to store images in S3. |
 | `MOMENTS_IMAGE_MAX_SIZE` | `2048` | Maximum image upload size in KB (default: 2048 = 2 MB). |
+| `MOMENTS_INTRO` | _(none)_ | Optional Markdown text shown above the timeline. Leave unset to display no introduction. Raw HTML is stripped before rendering. |
 | `GLIDE_SIGN_KEY` | _(none)_ | Secret key used to sign Glide image URLs. Generate with `php artisan tinker moments:glide-key`. |
 
 If using the default `public` disk, run `php artisan storage:link` once to make uploaded images publicly accessible.

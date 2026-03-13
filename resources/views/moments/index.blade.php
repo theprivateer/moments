@@ -5,6 +5,12 @@
         <livewire:create-moment />
     @endauth
 
+    @if ($intro)
+        <div class="prose text-gray-800 mb-6">
+            {!! $intro !!}
+        </div>
+    @endif
+
     @forelse ($moments as $moment)
         <article class="bg-white border border-gray-200 rounded-lg p-4 mb-4">
             <div class="flex items-center justify-between mb-2">

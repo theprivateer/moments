@@ -37,4 +37,16 @@ return [
     |
     */
     'image_max_size' => (int) env('MOMENTS_IMAGE_MAX_SIZE', 2048),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Timeline Introduction
+    |--------------------------------------------------------------------------
+    |
+    | Optional Markdown text prepended to the public timeline. Leave blank (or
+    | unset) to show no introduction. Supports standard Markdown — raw HTML
+    | and unsafe links are stripped before rendering.
+    |
+    */
+    'intro' => env('MOMENTS_INTRO'),
 ];

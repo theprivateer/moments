@@ -98,6 +98,10 @@ Key details:
 
 `MomentPolicy` enforces ownership for `update` and `delete`. Controllers call `$this->authorize('update', $moment)` / `$this->authorize('delete', $moment)`. The `TokenController` uses `abort_if($token->tokenable_id !== $request->user()->id, 403)` for manual ownership checks.
 
+### Timeline Introduction
+
+`config('moments.intro')` (env `MOMENTS_INTRO`) — optional Markdown string rendered above the timeline. `MomentController::index()` reads this config, passes it through `Str::markdown()` with `html_input => strip` and `allow_unsafe_links => false`, and passes the resulting HTML (or `null`) to `moments.index` as `$intro`. The view renders it only when non-null.
+
 ### Authentication
 
 - **Web** — session-based (`middleware('auth')`), managed by `Auth\LoginController`
