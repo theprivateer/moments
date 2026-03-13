@@ -79,6 +79,35 @@ it('rejects an unauthenticated request with 401', function () {
         ->assertUnauthorized();
 });
 
+it('creates a moment with a custom created_at epoch', function () {
+    $user = User::factory()->create();
+    $token = $user->createToken('test')->plainTextToken;
+    $epoch = 1483228800; // 2017-01-01T00:00:00Z
+
+    $this->withToken($token)
+        ->postJson('/api/v1/moments', ['body' => 'Historic post', 'created_at' => $epoch])
+        ->assertCreated()
+        ->assertJsonPath('data.created_at', '2017-01-01T00:00:00.000000Z');
+
+    $this->assertDatabaseHas('moments', [
+        'user_id' => $user->id,
+        'body' => 'Historic post',
+        'created_at' => '2017-01-01 00:00:00',
+    ]);
+});
+
+it('uses the current time when created_at is omitted', function () {
+    $user = User::factory()->create();
+    $token = $user->createToken('test')->plainTextToken;
+
+    $this->withToken($token)
+        ->postJson('/api/v1/moments', ['body' => 'New post'])
+        ->assertCreated();
+
+    $moment = Moment::where('user_id', $user->id)->first();
+    expect($moment->created_at->diffInSeconds(now()))->toBeLessThan(5);
+});
+
 it('associates the moment with the token owner', function () {
     $user = User::factory()->create();
     $other = User::factory()->create();

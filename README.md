@@ -169,6 +169,7 @@ Send as `application/json`. At least one of `body` or `images` must be provided.
 |-------|------|----------|-------------|
 | `body` | string | Required if no images | Moment text. Markdown is supported (max 10,000 chars). |
 | `images` | integer[] | Required if no body | IDs of pre-uploaded images (from `POST /api/v1/images`). |
+| `created_at` | integer | No | Unix epoch timestamp to use as the creation date. Intended for bulk-importing historic data. Omit to use the current time. |
 
 **201 Created** on success:
 

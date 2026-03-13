@@ -36,6 +36,11 @@ class MomentController extends Controller
             'body' => $validated['body'] ?? null,
         ]);
 
+        if (isset($validated['created_at'])) {
+            $moment->created_at = \Carbon\Carbon::createFromTimestamp($validated['created_at']);
+            $moment->save();
+        }
+
         if (! empty($validated['images'])) {
             MomentImage::whereIn('id', $validated['images'])
                 ->whereNull('moment_id')

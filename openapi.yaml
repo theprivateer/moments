@@ -107,6 +107,11 @@ paths:
                   items:
                     type: integer
                   description: IDs of pre-uploaded images (from POST /api/v1/images). Required when no body is supplied.
+                created_at:
+                  type: integer
+                  description: >
+                    Optional Unix epoch timestamp (seconds since 1970-01-01 UTC).
+                    When supplied, overrides the moment's creation timestamp — intended for bulk-importing historic data.
       responses:
         '201':
           description: Moment created
