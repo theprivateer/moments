@@ -18,7 +18,7 @@ class ImageController extends Controller
 
         $image = MomentImage::create([
             'moment_id' => null,
-            'path' => $request->file('image')->store('moments', $disk),
+            'path' => $request->validated()['image']->store('moments', $disk),
             'disk' => $disk,
         ]);
 

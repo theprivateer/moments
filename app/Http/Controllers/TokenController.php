@@ -5,18 +5,10 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreTokenRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\View\View;
 use Laravel\Sanctum\PersonalAccessToken;
 
 class TokenController extends Controller
 {
-    public function index(Request $request): View
-    {
-        $tokens = $request->user()->tokens()->latest()->get();
-
-        return view('tokens.index', ['tokens' => $tokens]);
-    }
-
     public function store(StoreTokenRequest $request): RedirectResponse
     {
         $token = $request->user()->createToken($request->validated()['name']);

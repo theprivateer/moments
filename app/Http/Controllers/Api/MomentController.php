@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Actions\DestroyMomentAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\StoreMomentRequest;
 use App\Http\Requests\Api\UpdateMomentRequest;
@@ -81,17 +82,11 @@ class MomentController extends Controller
         return (new MomentResource($moment))->response();
     }
 
-    public function destroy(Moment $moment): Response
+    public function destroy(Moment $moment, DestroyMomentAction $action): Response
     {
         $this->authorize('delete', $moment);
 
-        $moment->load('images');
-
-        foreach ($moment->images as $image) {
-            Storage::disk($image->disk)->delete($image->path);
-        }
-
-        $moment->delete();
+        $action->execute($moment);
 
         return response()->noContent();
     }

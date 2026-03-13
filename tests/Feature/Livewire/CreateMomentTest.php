@@ -1,6 +1,5 @@
 <?php
 
-use App\Livewire\CreateMoment;
 use App\Models\Moment;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
@@ -11,7 +10,7 @@ it('renders for an authenticated user', function () {
     $user = User::factory()->create();
 
     Livewire::actingAs($user)
-        ->test(CreateMoment::class)
+        ->test('create-moment')
         ->assertOk();
 });
 
@@ -19,7 +18,7 @@ it('creates a moment with body only', function () {
     $user = User::factory()->create();
 
     Livewire::actingAs($user)
-        ->test(CreateMoment::class)
+        ->test('create-moment')
         ->set('body', 'Hello **world**')
         ->call('save');
 
@@ -31,7 +30,7 @@ it('fails validation with no body and no images', function () {
     $user = User::factory()->create();
 
     Livewire::actingAs($user)
-        ->test(CreateMoment::class)
+        ->test('create-moment')
         ->set('body', '')
         ->call('save')
         ->assertHasErrors(['body']);
@@ -43,7 +42,7 @@ it('creates a moment with an image and no body', function () {
     $user = User::factory()->create();
 
     Livewire::actingAs($user)
-        ->test(CreateMoment::class)
+        ->test('create-moment')
         ->set('images', [UploadedFile::fake()->image('photo.jpg')])
         ->call('save');
 
@@ -59,7 +58,7 @@ it('stores the uploaded image on the configured disk', function () {
     $user = User::factory()->create();
 
     Livewire::actingAs($user)
-        ->test(CreateMoment::class)
+        ->test('create-moment')
         ->set('body', 'With image')
         ->set('images', [UploadedFile::fake()->image('photo.jpg')])
         ->call('save');
@@ -76,7 +75,7 @@ it('rejects an oversized image', function () {
     $oversized = UploadedFile::fake()->image('big.jpg')->size(config('moments.image_max_size') + 1);
 
     Livewire::actingAs($user)
-        ->test(CreateMoment::class)
+        ->test('create-moment')
         ->set('images', [$oversized])
         ->assertHasErrors(['images.*']);
 });
@@ -89,7 +88,7 @@ it('removes a pending image from the array', function () {
     $file2 = UploadedFile::fake()->image('b.jpg');
 
     Livewire::actingAs($user)
-        ->test(CreateMoment::class)
+        ->test('create-moment')
         ->set('images', [$file1, $file2])
         ->call('removeImage', 0)
         ->assertSet('images', fn ($images) => count($images) === 1);

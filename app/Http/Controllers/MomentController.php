@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\DestroyMomentAction;
+use App\Actions\StoreMomentAction;
+use App\Actions\UpdateMomentAction;
 use App\Http\Requests\StoreMomentRequest;
 use App\Http\Requests\UpdateMomentRequest;
 use App\Models\Moment;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -30,21 +32,17 @@ class MomentController extends Controller
         return view('moments.show', ['moment' => $moment]);
     }
 
-    public function store(StoreMomentRequest $request): RedirectResponse
+    public function store(StoreMomentRequest $request, StoreMomentAction $action): RedirectResponse
     {
         $this->authorize('create', Moment::class);
 
         $validated = $request->validated();
 
-        $moment = Moment::create([
-            'user_id' => $request->user()->id,
-            'body' => $validated['body'] ?? null,
-        ]);
-
-        foreach ($request->file('images', []) as $file) {
-            $disk = config('moments.image_disk');
-            $moment->images()->create(['path' => $file->store('moments', $disk), 'disk' => $disk]);
-        }
+        $action->execute(
+            $request->user()->id,
+            $validated['body'] ?? null,
+            $validated['images'] ?? [],
+        );
 
         return redirect()->route('moments.index');
     }
@@ -58,39 +56,27 @@ class MomentController extends Controller
         return view('moments.edit', ['moment' => $moment]);
     }
 
-    public function update(UpdateMomentRequest $request, Moment $moment): RedirectResponse
+    public function update(UpdateMomentRequest $request, Moment $moment, UpdateMomentAction $action): RedirectResponse
     {
         $this->authorize('update', $moment);
 
         $validated = $request->validated();
 
-        $toRemove = $moment->images()->whereIn('id', $validated['remove_images'] ?? [])->get();
-        foreach ($toRemove as $image) {
-            Storage::disk($image->disk)->delete($image->path);
-            $image->delete();
-        }
-
-        foreach ($request->file('images', []) as $file) {
-            $disk = config('moments.image_disk');
-            $moment->images()->create(['path' => $file->store('moments', $disk), 'disk' => $disk]);
-        }
-
-        $moment->update(['body' => $validated['body'] ?? null]);
+        $action->execute(
+            $moment,
+            $validated['body'] ?? null,
+            $validated['remove_images'] ?? [],
+            $validated['images'] ?? [],
+        );
 
         return redirect()->route('moments.index');
     }
 
-    public function destroy(Moment $moment): RedirectResponse
+    public function destroy(Moment $moment, DestroyMomentAction $action): RedirectResponse
     {
         $this->authorize('delete', $moment);
 
-        $moment->load('images');
-
-        foreach ($moment->images as $image) {
-            Storage::disk($image->disk)->delete($image->path);
-        }
-
-        $moment->delete();
+        $action->execute($moment);
 
         return redirect()->route('moments.index');
     }
