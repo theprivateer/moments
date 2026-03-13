@@ -102,7 +102,16 @@ Key details:
 
 `config('moments.intro')` (env `MOMENTS_INTRO`) — optional Markdown string rendered above the timeline. `MomentController::index()` reads this config, passes it through `Str::markdown()` with `html_input => strip` and `allow_unsafe_links => false`, and passes the resulting HTML (or `null`) to `moments.index` as `$intro`. The view renders it only when non-null.
 
+### Account Management
+
+`AccountController` handles the unified `/account` page (requires auth):
+- `show` — renders `account.show` with the user and their tokens
+- `updateProfile` — validates via `UpdateProfileRequest` (name, email with unique-ignore), flashes `profile_updated`
+- `updatePassword` — validates via `UpdatePasswordRequest` (`current_password` string rule, new password with confirmation), flashes `password_updated`
+
+`GET /tokens` is a `Route::redirect` to `/account`; `POST /tokens` and `DELETE /tokens/{token}` remain on `TokenController` but redirect to `account.show`.
+
 ### Authentication
 
 - **Web** — session-based (`middleware('auth')`), managed by `Auth\LoginController`
-- **API** — Sanctum personal access tokens (`middleware('auth:sanctum')`); tokens created/revoked at `/tokens`
+- **API** — Sanctum personal access tokens (`middleware('auth:sanctum')`); tokens created/revoked at `/account`

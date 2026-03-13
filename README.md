@@ -15,7 +15,8 @@ A personal micro-blog for publishing short posts to a public timeline. Built wit
 - **Permalinks** — each moment has its own page
 - **RSS feed** — subscribe at `/feed` with any feed reader
 - **API access** — post moments programmatically via a REST API using bearer tokens; machine-readable spec at `openapi.yaml`
-- **API token management** — create and revoke personal access tokens from the web UI at `/tokens`
+- **Account management** — update your name, email, and password from the `/account` page
+- **API token management** — create and revoke personal access tokens from the `/account` page
 
 > [!NOTE]
 > I am intentionally using **Claude Code** to help build and maintain this project as an exploration of using AI coding assistants. I have chosen this project as it is a reimagining of [an idea I had in early 2017](https://github.com/theprivateer/shortform), so the spec is fairly well documented.
@@ -76,7 +77,10 @@ Moments exposes a REST API for posting moments from external clients. A full Ope
 
 ### Getting an API token
 
-Log in, visit `/tokens`, give the token a name, and click **Create**. Copy the token value immediately — it is only shown once. You can revoke tokens from the same page.
+Log in, visit `/account`, scroll to the **API tokens** section, give the token a name, and click **Create**. Copy the token value immediately — it is only shown once. You can revoke tokens from the same page.
+
+> [!TIP]
+> Visiting `/tokens` directly redirects to `/account`.
 
 ### Endpoints
 
