@@ -2,6 +2,9 @@
 
 A personal micro-blog for publishing short posts to a public timeline. Built with Laravel 12, Blade, and Tailwind CSS.
 
+> [!NOTE]
+> I am intentionally using **Claude Code** to help build and maintain this project as an exploration of using AI coding assistants. I have chosen this project as it is a reimagining of [an idea I had in early 2017](https://github.com/theprivateer/shortform), so the spec is fairly well documented.
+
 ## Features
 
 - **Timeline introduction** — optional Markdown bio or greeting displayed above the timeline, configured via `MOMENTS_INTRO` in `.env`
@@ -17,9 +20,6 @@ A personal micro-blog for publishing short posts to a public timeline. Built wit
 - **API access** — post moments programmatically via a REST API using bearer tokens; machine-readable spec at `openapi.yaml`
 - **Account management** — update your name, email, and password from the `/account` page
 - **API token management** — create and revoke personal access tokens from the `/account` page
-
-> [!NOTE]
-> I am intentionally using **Claude Code** to help build and maintain this project as an exploration of using AI coding assistants. I have chosen this project as it is a reimagining of [an idea I had in early 2017](https://github.com/theprivateer/shortform), so the spec is fairly well documented.
 
 ## Getting Started
 
