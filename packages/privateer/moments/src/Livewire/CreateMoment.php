@@ -8,7 +8,7 @@ use Illuminate\View\View;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Privateer\Moments\Actions\StoreMomentAction;
-use Privateer\Moments\Models\Moment;
+use Privateer\Moments\Support\Moments as MomentsSupport;
 
 class CreateMoment extends Component
 {
@@ -33,14 +33,14 @@ class CreateMoment extends Component
 
     public function removeImage(int $index): void
     {
-        $this->authorize('create', Moment::class);
+        $this->authorize('create', MomentsSupport::momentModel());
 
         array_splice($this->images, $index, 1);
     }
 
     public function save(StoreMomentAction $action): void
     {
-        $this->authorize('create', Moment::class);
+        $this->authorize('create', MomentsSupport::momentModel());
 
         $this->validate([
             'body' => [

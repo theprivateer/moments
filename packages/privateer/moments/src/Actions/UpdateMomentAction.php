@@ -3,11 +3,10 @@
 namespace Privateer\Moments\Actions;
 
 use Illuminate\Support\Facades\Storage;
-use Privateer\Moments\Models\Moment;
 
 class UpdateMomentAction
 {
-    public function execute(Moment $moment, ?string $body, array $removeIds, array $newImages): Moment
+    public function execute(object $moment, ?string $body, array $removeIds, array $newImages): object
     {
         $toRemove = $moment->images()->whereIn('id', $removeIds)->get();
 

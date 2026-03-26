@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-use Privateer\Moments\Models\Moment;
 
 class User extends Authenticatable
 {
@@ -39,7 +38,7 @@ class User extends Authenticatable
 
     public function moments(): HasMany
     {
-        return $this->hasMany(Moment::class);
+        return $this->hasMany(config('moments.moment_model'));
     }
 
     /**

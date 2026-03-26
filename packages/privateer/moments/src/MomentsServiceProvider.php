@@ -12,7 +12,6 @@ use Privateer\Moments\Console\Commands\GlideKeyCommand;
 use Privateer\Moments\Console\Commands\InstallCommand;
 use Privateer\Moments\Livewire\CreateMoment;
 use Privateer\Moments\Livewire\EditMoment;
-use Privateer\Moments\Models\Moment;
 use Privateer\Moments\Policies\MomentPolicy;
 use Privateer\Moments\Support\Moments as MomentsSupport;
 
@@ -76,11 +75,13 @@ class MomentsServiceProvider extends ServiceProvider
 
     protected function registerPolicies(): void
     {
-        Gate::policy(Moment::class, MomentPolicy::class);
+        Gate::policy(MomentsSupport::momentModel(), MomentPolicy::class);
     }
 
     protected function registerRoutes(): void
     {
+        Route::model('moment', MomentsSupport::momentModel());
+
         if (config('moments.register_web_routes', true)) {
             Route::middleware(config('moments.web_middleware', ['web']))
                 ->prefix(MomentsSupport::routePrefix())

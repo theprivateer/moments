@@ -11,12 +11,14 @@ use Privateer\Moments\Actions\UpdateMomentAction;
 use Privateer\Moments\Http\Requests\StoreMomentRequest;
 use Privateer\Moments\Http\Requests\UpdateMomentRequest;
 use Privateer\Moments\Models\Moment;
+use Privateer\Moments\Support\Moments as MomentsSupport;
 
 class MomentController extends Controller
 {
     public function index(): View
     {
-        $moments = Moment::query()->with(['user', 'images'])->latest()->simplePaginate(10);
+        $momentModel = MomentsSupport::momentModel();
+        $moments = $momentModel::query()->with(['user', 'images'])->latest()->simplePaginate(10);
 
         $intro = config('moments.intro')
             ? Str::markdown(config('moments.intro'), ['html_input' => 'strip', 'allow_unsafe_links' => false])
@@ -34,7 +36,7 @@ class MomentController extends Controller
 
     public function store(StoreMomentRequest $request, StoreMomentAction $action): RedirectResponse
     {
-        $this->authorize('create', Moment::class);
+        $this->authorize('create', MomentsSupport::momentModel());
 
         $validated = $request->validated();
 

@@ -13,13 +13,15 @@ use Privateer\Moments\Http\Requests\Api\StoreMomentRequest;
 use Privateer\Moments\Http\Requests\Api\UpdateMomentRequest;
 use Privateer\Moments\Http\Resources\MomentResource;
 use Privateer\Moments\Models\Moment;
-use Privateer\Moments\Models\MomentImage;
+use Privateer\Moments\Support\Moments as MomentsSupport;
 
 class MomentController extends Controller
 {
     public function index(): AnonymousResourceCollection
     {
-        $moments = Moment::query()
+        $momentModel = MomentsSupport::momentModel();
+
+        $moments = $momentModel::query()
             ->with('images')
             ->latest()
             ->paginate(20);
@@ -29,11 +31,14 @@ class MomentController extends Controller
 
     public function store(StoreMomentRequest $request): JsonResponse
     {
-        $this->authorize('create', Moment::class);
+        $momentModel = MomentsSupport::momentModel();
+        $momentImageModel = MomentsSupport::momentImageModel();
+
+        $this->authorize('create', $momentModel);
 
         $validated = $request->validated();
 
-        $moment = Moment::create([
+        $moment = $momentModel::create([
             'user_id' => $request->user()->id,
             'body' => $validated['body'] ?? null,
         ]);
@@ -44,7 +49,7 @@ class MomentController extends Controller
         }
 
         if (! empty($validated['images'])) {
-            MomentImage::query()
+            $momentImageModel::query()
                 ->whereIn('id', $validated['images'])
                 ->whereNull('moment_id')
                 ->update(['moment_id' => $moment->id]);
@@ -57,6 +62,8 @@ class MomentController extends Controller
 
     public function update(UpdateMomentRequest $request, Moment $moment): JsonResponse
     {
+        $momentImageModel = MomentsSupport::momentImageModel();
+
         $this->authorize('update', $moment);
 
         $validated = $request->validated();
@@ -71,7 +78,7 @@ class MomentController extends Controller
         }
 
         if (! empty($validated['add_images'])) {
-            MomentImage::query()
+            $momentImageModel::query()
                 ->whereIn('id', $validated['add_images'])
                 ->whereNull('moment_id')
                 ->update(['moment_id' => $moment->id]);

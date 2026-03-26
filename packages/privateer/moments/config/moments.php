@@ -1,6 +1,8 @@
 <?php
 
 use App\Models\User;
+use Privateer\Moments\Models\Moment;
+use Privateer\Moments\Models\MomentImage;
 
 return [
     /*
@@ -14,6 +16,19 @@ return [
     |
     */
     'user_model' => User::class,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Host Moment Models
+    |--------------------------------------------------------------------------
+    |
+    | These model classes are used for moments and their attached images.
+    | Host applications may replace them with subclasses of the package
+    | models to add behavior while preserving the expected schema.
+    |
+    */
+    'moment_model' => Moment::class,
+    'moment_image_model' => MomentImage::class,
 
     /*
     |--------------------------------------------------------------------------

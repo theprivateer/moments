@@ -4,13 +4,15 @@ namespace Privateer\Moments\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Str;
-use Privateer\Moments\Models\Moment;
+use Privateer\Moments\Support\Moments as MomentsSupport;
 
 class JsonFeedController extends Controller
 {
     public function __invoke(): JsonResponse
     {
-        $moments = Moment::query()
+        $momentModel = MomentsSupport::momentModel();
+
+        $moments = $momentModel::query()
             ->with(['user', 'images'])
             ->latest()
             ->limit(20)
@@ -21,7 +23,7 @@ class JsonFeedController extends Controller
             'title' => config('app.name'),
             'home_page_url' => route('moments.index'),
             'feed_url' => route('feed.json'),
-            'items' => $moments->map(function (Moment $moment): array {
+            'items' => $moments->map(function (object $moment): array {
                 $title = $moment->body
                     ? Str::limit(strip_tags($moment->renderedBody()), 60)
                     : 'Moment - '.$moment->created_at->format('j M Y');

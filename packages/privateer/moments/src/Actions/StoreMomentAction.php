@@ -2,13 +2,15 @@
 
 namespace Privateer\Moments\Actions;
 
-use Privateer\Moments\Models\Moment;
+use Privateer\Moments\Support\Moments as MomentsSupport;
 
 class StoreMomentAction
 {
-    public function execute(int $userId, ?string $body, array $images): Moment
+    public function execute(int $userId, ?string $body, array $images): object
     {
-        $moment = Moment::create([
+        $momentModel = MomentsSupport::momentModel();
+
+        $moment = $momentModel::create([
             'user_id' => $userId,
             'body' => $body,
         ]);

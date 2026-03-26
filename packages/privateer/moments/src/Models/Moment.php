@@ -16,19 +16,19 @@ class Moment extends Model
 
     protected $fillable = ['user_id', 'body'];
 
-    protected static function newFactory(): MomentFactory
+    protected static function newFactory()
     {
         return MomentFactory::new();
     }
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(MomentsSupport::userModel());
+        return $this->belongsTo(MomentsSupport::userModel(), 'user_id');
     }
 
     public function images(): HasMany
     {
-        return $this->hasMany(MomentImage::class);
+        return $this->hasMany(MomentsSupport::momentImageModel(), 'moment_id');
     }
 
     public function renderedBody(): ?string

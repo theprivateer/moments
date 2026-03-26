@@ -3,13 +3,15 @@
 namespace Privateer\Moments\Http\Controllers;
 
 use Illuminate\Http\Response;
-use Privateer\Moments\Models\Moment;
+use Privateer\Moments\Support\Moments as MomentsSupport;
 
 class FeedController extends Controller
 {
     public function __invoke(): Response
     {
-        $moments = Moment::query()
+        $momentModel = MomentsSupport::momentModel();
+
+        $moments = $momentModel::query()
             ->with(['user', 'images'])
             ->latest()
             ->limit(20)

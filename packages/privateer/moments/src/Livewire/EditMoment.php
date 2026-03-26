@@ -10,6 +10,7 @@ use Livewire\Component;
 use Livewire\WithFileUploads;
 use Privateer\Moments\Actions\UpdateMomentAction;
 use Privateer\Moments\Models\Moment;
+use Privateer\Moments\Support\Moments as MomentsSupport;
 
 class EditMoment extends Component
 {
@@ -54,14 +55,17 @@ class EditMoment extends Component
 
     public function removeNewImage(int $index): void
     {
-        $this->authorize('update', Moment::query()->findOrFail($this->momentId));
+        $momentModel = MomentsSupport::momentModel();
+
+        $this->authorize('update', $momentModel::query()->findOrFail($this->momentId));
 
         array_splice($this->newImages, $index, 1);
     }
 
     public function save(UpdateMomentAction $action): void
     {
-        $moment = Moment::query()->findOrFail($this->momentId);
+        $momentModel = MomentsSupport::momentModel();
+        $moment = $momentModel::query()->findOrFail($this->momentId);
         $this->authorize('update', $moment);
 
         $remaining = count($this->existingImages) - count($this->imagesToRemove);

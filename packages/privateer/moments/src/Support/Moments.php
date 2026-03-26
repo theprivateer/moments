@@ -12,6 +12,16 @@ class Moments
         return config('moments.user_model');
     }
 
+    public static function momentModel(): string
+    {
+        return config('moments.moment_model');
+    }
+
+    public static function momentImageModel(): string
+    {
+        return config('moments.moment_image_model');
+    }
+
     public static function newUserModel(): Model
     {
         $model = static::userModel();
@@ -19,9 +29,33 @@ class Moments
         return new $model;
     }
 
+    public static function newMomentModel(): Model
+    {
+        $model = static::momentModel();
+
+        return new $model;
+    }
+
+    public static function newMomentImageModel(): Model
+    {
+        $model = static::momentImageModel();
+
+        return new $model;
+    }
+
     public static function userTable(): string
     {
         return static::newUserModel()->getTable();
+    }
+
+    public static function momentTable(): string
+    {
+        return static::newMomentModel()->getTable();
+    }
+
+    public static function momentImageTable(): string
+    {
+        return static::newMomentImageModel()->getTable();
     }
 
     public static function firstUser(): ?Authenticatable

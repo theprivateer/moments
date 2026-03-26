@@ -4,7 +4,7 @@ namespace Privateer\Moments\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
-use Privateer\Moments\Models\MomentImage;
+use Privateer\Moments\Support\Moments as MomentsSupport;
 
 class DeleteOrphanImagesCommand extends Command
 {
@@ -14,7 +14,9 @@ class DeleteOrphanImagesCommand extends Command
 
     public function handle(): int
     {
-        $orphans = MomentImage::query()
+        $momentImageModel = MomentsSupport::momentImageModel();
+
+        $orphans = $momentImageModel::query()
             ->whereNull('moment_id')
             ->where('created_at', '<', now()->subMinutes(20))
             ->get();

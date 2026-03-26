@@ -3,11 +3,10 @@
 namespace Privateer\Moments\Actions;
 
 use Illuminate\Support\Facades\Storage;
-use Privateer\Moments\Models\Moment;
 
 class DestroyMomentAction
 {
-    public function execute(Moment $moment): void
+    public function execute(object $moment): void
     {
         $moment->load('images');
 

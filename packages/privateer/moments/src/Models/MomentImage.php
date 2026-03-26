@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Storage;
 use League\Glide\Urls\UrlBuilderFactory;
 use Privateer\Moments\Database\Factories\MomentImageFactory;
+use Privateer\Moments\Support\Moments as MomentsSupport;
 
 class MomentImage extends Model
 {
@@ -15,14 +16,14 @@ class MomentImage extends Model
 
     protected $fillable = ['moment_id', 'path', 'disk'];
 
-    protected static function newFactory(): MomentImageFactory
+    protected static function newFactory()
     {
         return MomentImageFactory::new();
     }
 
     public function moment(): BelongsTo
     {
-        return $this->belongsTo(Moment::class);
+        return $this->belongsTo(MomentsSupport::momentModel(), 'moment_id');
     }
 
     public function url(): string
