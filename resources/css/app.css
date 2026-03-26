@@ -2,6 +2,8 @@
 @plugin "@tailwindcss/typography";
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
+@source '../../packages/privateer/moments/resources/views/**/*.blade.php';
+@source '../../packages/privateer/moments/resources/js/**/*.js';
 @source '../**/*.blade.php';
 @source '../**/*.js';
 

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "81b18fcd773cc6ee9cf318480bf44648",
+    "content-hash": "fcfbac325060352f2cc09e16c4134aae",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -3228,6 +3228,50 @@
                 }
             ],
             "time": "2025-12-27T19:41:33+00:00"
+        },
+        {
+            "name": "privateer/moments",
+            "version": "1.0.0",
+            "dist": {
+                "type": "path",
+                "url": "./packages/privateer/moments",
+                "reference": "9b92884ce0a23964a823387fe428ad7ff46fb530"
+            },
+            "require": {
+                "laravel/framework": "^13.0",
+                "laravel/sanctum": "^4.0",
+                "league/commonmark": "^2.8",
+                "league/glide": "^3.2",
+                "livewire/livewire": "^4.2",
+                "php": "^8.2"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Privateer\\Moments\\MomentsServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Privateer\\Moments\\": "src/",
+                    "Privateer\\Moments\\Database\\Factories\\": "database/factories/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Privateer\\Moments\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "Reusable Moments micro-blog package for Laravel applications.",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
         },
         {
             "name": "psr/clock",

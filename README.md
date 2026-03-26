@@ -1,34 +1,41 @@
 # Moments
 
-A personal micro-blog for publishing short posts to a public timeline. Built with Laravel 12, Blade, and Tailwind CSS.
+Moments is a Laravel-based development host for the extracted [`privateer/moments`](./packages/privateer/moments) package.
 
-> [!NOTE]
-> I am intentionally using **Claude Code** to help build and maintain this project as an exploration of using AI coding assistants. I have chosen this project as it is a reimagining of [an idea I had in early 2017](https://github.com/theprivateer/shortform), so the spec is fairly well documented.
+The repository serves two purposes:
 
-## Features
+- it is a working Moments application you can run locally
+- it is the package development environment, wired in through a Composer `path` repository
 
-- **Timeline introduction** — optional Markdown bio or greeting displayed above the timeline, configured via `MOMENTS_INTRO` in `.env`
-- **Public timeline** — all posts are visible to anyone without an account
-- **Markdown rendering** — post content is written and rendered in Markdown
-- **Single-author** — one user account owns the blog
-- **Post management** — create, edit, and delete posts when logged in
-- **Image attachments** — moments can include multiple images; body is optional when at least one image is present
-- **Image optimisation** — images are resized server-side via [Glide](https://glide.thephpleague.com) to match their display dimensions, reducing bandwidth without sacrificing quality
-- **Image lightbox** — clicking any image opens it full-screen using the native `<dialog>` element; no JavaScript framework required
-- **Permalinks** — each moment has its own page
-- **RSS feed** — subscribe at `/feed` with any feed reader; also available as Atom 1.0 at `/feed/atom` and JSON Feed 1.1 at `/feed/json`; all three formats are linked via autodiscovery `<link>` tags so feed readers can detect them automatically
-- **API access** — post moments programmatically via a REST API using bearer tokens; machine-readable spec at `openapi.yaml`
-- **Account management** — update your name, email, and password from the `/account` page
-- **API token management** — create and revoke personal access tokens from the `/account` page
+The host app mounts the package at `/` so the local experience still behaves like a standalone micro-blog, while the package itself defaults to a dedicated `/moments` prefix when installed into another Laravel application.
 
-## Getting Started
+## Architecture
+
+- Host app: this repository's Laravel application
+- Package: [`packages/privateer/moments`](./packages/privateer/moments)
+- Composer integration: root [`composer.json`](./composer.json) requires `privateer/moments` and resolves it through a local `path` repository
+- API spec: [`packages/privateer/moments/openapi.yaml`](./packages/privateer/moments/openapi.yaml)
+
+The package owns the Moments product surface:
+
+- public timeline and permalinks
+- Markdown rendering
+- image uploads, Glide resizing, and lightbox UI
+- RSS, Atom, and JSON feeds
+- REST API and OpenAPI description
+- login, account, and API token management
+- install and maintenance commands
+
+The host app remains responsible for generic Laravel application concerns such as the app skeleton, environment, user model, and local asset pipeline.
+
+## Local Development
 
 ### Requirements
 
 - PHP 8.4+
 - Composer
-- Node.js & npm
-- [Laravel Herd](https://herd.laravel.com) (or another local server)
+- Node.js and npm
+- [Laravel Herd](https://herd.laravel.com) or another local Laravel server
 
 ### Installation
 
@@ -44,300 +51,77 @@ php artisan key:generate
 php artisan migrate
 ```
 
-### Create your account
+### Create the owner account
 
 ```bash
 php artisan moments:install
 ```
 
-This will prompt you for a name, email, and password to create the owner account.
+This command creates the initial user in the host app and generates a Glide signing key.
 
-### Start the dev server
+### Run the app
 
 ```bash
 composer run dev
 ```
 
-Then visit [http://moments.test](http://moments.test) in your browser.
+With Herd, the app is typically available at [https://moments.test](https://moments.test).
 
-## Configuration
+## Package Development Notes
 
-| Variable | Default | Description |
-|---|---|---|
-| `MOMENTS_IMAGE_DISK` | `public` | Filesystem disk for uploaded images. Set to `s3` to store images in S3. |
-| `MOMENTS_IMAGE_MAX_SIZE` | `2048` | Maximum image upload size in KB (default: 2048 = 2 MB). |
-| `MOMENTS_INTRO` | _(none)_ | Optional Markdown text shown above the timeline. Leave unset to display no introduction. Raw HTML is stripped before rendering. |
-| `GLIDE_SIGN_KEY` | _(none)_ | Secret key used to sign Glide image URLs. Generate with `php artisan tinker moments:glide-key`. |
+This repository intentionally develops the package in-place.
 
-If using the default `public` disk, run `php artisan storage:link` once to make uploaded images publicly accessible.
+- The package lives at [`packages/privateer/moments`](./packages/privateer/moments)
+- The root app requires `privateer/moments`
+- Composer resolves it through a `path` repository with symlinking enabled
+- The host app overrides the package route prefix to `/` in [`config/moments.php`](./config/moments.php)
+
+If you are working on the package itself, the package-facing installation and integration guidance lives in [`packages/privateer/moments/README.md`](./packages/privateer/moments/README.md).
+
+## Host App Configuration
+
+The host app uses the package's config surface but with local-development-friendly defaults.
+
+Key host-specific choices:
+
+- `route_prefix` is `/` so the package takes over the site root locally
+- `user_model` points at the host app's `App\Models\User`
+- the package web and API routes are both enabled
+
+See [`config/moments.php`](./config/moments.php) for the full set of options and inline documentation.
+
+If you use the default `public` filesystem disk for uploads, run:
+
+```bash
+php artisan storage:link
+```
 
 ## API
 
-Moments exposes a REST API for posting moments from external clients. A full OpenAPI 3.1 description is available at [`openapi.yaml`](openapi.yaml) in the project root — import it into any OpenAPI-compatible tool (Insomnia, Postman, Scalar, etc.) to explore and test the API.
+The REST API is provided by the package and is documented in the package-owned OpenAPI file:
 
-### Getting an API token
+- [`packages/privateer/moments/openapi.yaml`](./packages/privateer/moments/openapi.yaml)
 
-Log in, visit `/account`, scroll to the **API tokens** section, give the token a name, and click **Create**. Copy the token value immediately — it is only shown once. You can revoke tokens from the same page.
+In this host app, the package API is mounted at:
 
-> [!TIP]
-> Visiting `/tokens` directly redirects to `/account`.
+- `POST /api/v1/images`
+- `GET /api/v1/moments`
+- `POST /api/v1/moments`
+- `PATCH /api/v1/moments/{moment}`
+- `DELETE /api/v1/moments/{moment}`
 
-### Endpoints
+API authentication uses Sanctum personal access tokens managed through the account UI.
 
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| `GET`  | `/api/v1/moments` | Bearer token | Retrieve the timeline (paginated, 20 per page, newest first) |
-| `POST` | `/api/v1/images` | Bearer token | Upload an image, receive an image ID |
-| `POST` | `/api/v1/moments` | Bearer token | Create a moment, referencing uploaded image IDs |
-| `PATCH` | `/api/v1/moments/{moment}` | Bearer token | Update a moment's body, add new images, or remove existing images |
-| `DELETE` | `/api/v1/moments/{moment}` | Bearer token | Permanently delete a moment and all its images |
+## Commands
 
-### Two-step workflow
-
-Posting a moment with images requires two steps:
-
-1. **Upload each image** via `POST /api/v1/images` — returns an `id` for each uploaded image.
-2. **Create the moment** via `POST /api/v1/moments` — pass the image IDs you collected in step 1.
-
-> [!IMPORTANT]
-> All API requests must include the `Accept: application/json` header. Without it, validation errors will return an HTML redirect (302) instead of a JSON `422` error response.
-
-### GET /api/v1/moments
-
-Returns the paginated timeline, newest first.
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `page` | integer | No | Page number (default: 1). 20 moments per page. |
-
-**200 OK** on success:
-
-```json
-{
-  "data": [
-    {
-      "id": 1,
-      "body": "Hello from the API",
-      "body_html": "<p>Hello from the API</p>\n",
-      "created_at": "2026-02-28T09:00:00.000000Z",
-      "images": [
-        { "id": 42, "url": "https://moments.test/img/moments/photo.jpg?s=..." }
-      ]
-    }
-  ],
-  "links": {
-    "first": "https://moments.test/api/v1/moments?page=1",
-    "last": "https://moments.test/api/v1/moments?page=3",
-    "prev": null,
-    "next": "https://moments.test/api/v1/moments?page=2"
-  },
-  "meta": {
-    "current_page": 1,
-    "from": 1,
-    "last_page": 3,
-    "path": "https://moments.test/api/v1/moments",
-    "per_page": 20,
-    "to": 20,
-    "total": 42
-  }
-}
-```
-
-| Status | Meaning |
-|--------|---------|
-| `200 OK` | Success |
-| `401 Unauthorized` | Missing or invalid token |
-
-### POST /api/v1/images
-
-Send as `multipart/form-data`.
-
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `image` | file | Yes | Image file to upload (max size configurable via `MOMENTS_IMAGE_MAX_SIZE`, default 2 MB). |
-
-**201 Created** on success:
-
-```json
-{
-  "data": {
-    "id": 42,
-    "url": "https://moments.test/img/moments/photo.jpg?s=..."
-  }
-}
-```
-
-### POST /api/v1/moments
-
-Send as `application/json`. At least one of `body` or `images` must be provided.
-
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `body` | string | Required if no images | Moment text. Markdown is supported (max 10,000 chars). |
-| `images` | integer[] | Required if no body | IDs of pre-uploaded images (from `POST /api/v1/images`). |
-| `created_at` | integer | No | Unix epoch timestamp to use as the creation date. Intended for bulk-importing historic data. Omit to use the current time. |
-
-**201 Created** on success:
-
-```json
-{
-  "data": {
-    "id": 1,
-    "body": "Hello from the API",
-    "body_html": "<p>Hello from the API</p>\n",
-    "created_at": "2026-02-28T09:00:00.000000Z",
-    "images": [
-      { "id": 42, "url": "https://moments.test/img/moments/photo.jpg?s=..." }
-    ]
-  }
-}
-```
-
-| Status | Meaning |
-|--------|---------|
-| `201 Created` | Resource created successfully |
-| `401 Unauthorized` | Missing or invalid token |
-| `422 Unprocessable` | Validation failed |
-
-### PATCH /api/v1/moments/{moment}
-
-Send as `application/json`. All fields are optional (PATCH semantics — only sent fields are changed). At least one of `body` or images must remain after the update.
-
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `body` | string | Required if no images would remain | Updated Markdown text (max 10,000 chars). Omit to leave the existing body unchanged. |
-| `add_images` | integer[] | No | IDs of pre-uploaded images to attach (from `POST /api/v1/images`). |
-| `remove_images` | integer[] | No | IDs of existing images to detach and permanently delete. |
-
-**200 OK** on success — returns the full updated moment resource (same shape as `POST /api/v1/moments`).
-
-| Status | Meaning |
-|--------|---------|
-| `200 OK` | Resource updated successfully |
-| `401 Unauthorized` | Missing or invalid token |
-| `403 Forbidden` | Token does not own this moment |
-| `404 Not Found` | Moment does not exist |
-| `422 Unprocessable` | Validation failed |
-
-### DELETE /api/v1/moments/{moment}
-
-No request body. Deletes the moment and permanently removes all attached image files from storage.
-
-| Status | Meaning |
-|--------|---------|
-| `204 No Content` | Moment deleted successfully |
-| `401 Unauthorized` | Missing or invalid token |
-| `403 Forbidden` | Token does not own this moment |
-| `404 Not Found` | Moment does not exist |
-
-### Examples
-
-**Fetch the timeline (page 1):**
-```bash
-curl http://moments.test/api/v1/moments \
-  -H "Authorization: Bearer <token>" \
-  -H "Accept: application/json"
-```
-
-**Text-only moment:**
-```bash
-curl -X POST http://moments.test/api/v1/moments \
-  -H "Authorization: Bearer <token>" \
-  -H "Accept: application/json" \
-  -H "Content-Type: application/json" \
-  -d '{"body": "Hello from the API"}'
-```
-
-**Image-only moment (two steps):**
-```bash
-# Step 1: upload the image
-IMAGE_ID=$(curl -s -X POST http://moments.test/api/v1/images \
-  -H "Authorization: Bearer <token>" \
-  -H "Accept: application/json" \
-  -F "image=@photo.jpg" | jq '.data.id')
-
-# Step 2: create the moment
-curl -X POST http://moments.test/api/v1/moments \
-  -H "Authorization: Bearer <token>" \
-  -H "Accept: application/json" \
-  -H "Content-Type: application/json" \
-  -d "{\"images\": [$IMAGE_ID]}"
-```
-
-**Update a moment's body:**
-```bash
-curl -X PATCH http://moments.test/api/v1/moments/1 \
-  -H "Authorization: Bearer <token>" \
-  -H "Accept: application/json" \
-  -H "Content-Type: application/json" \
-  -d '{"body": "Corrected text"}'
-```
-
-**Swap an image on a moment:**
-```bash
-# Step 1: upload the replacement image
-NEW_ID=$(curl -s -X POST http://moments.test/api/v1/images \
-  -H "Authorization: Bearer <token>" \
-  -H "Accept: application/json" \
-  -F "image=@new-photo.jpg" | jq '.data.id')
-
-# Step 2: patch the moment — add the new image, remove the old one (id=42)
-curl -X PATCH http://moments.test/api/v1/moments/1 \
-  -H "Authorization: Bearer <token>" \
-  -H "Accept: application/json" \
-  -H "Content-Type: application/json" \
-  -d "{\"add_images\": [$NEW_ID], \"remove_images\": [42]}"
-```
-
-**Text and image:**
-```bash
-# Step 1: upload the image
-IMAGE_ID=$(curl -s -X POST http://moments.test/api/v1/images \
-  -H "Authorization: Bearer <token>" \
-  -H "Accept: application/json" \
-  -F "image=@photo.jpg" | jq '.data.id')
-
-# Step 2: create the moment
-curl -X POST http://moments.test/api/v1/moments \
-  -H "Authorization: Bearer <token>" \
-  -H "Accept: application/json" \
-  -H "Content-Type: application/json" \
-  -d "{\"body\": \"A moment with a photo\", \"images\": [$IMAGE_ID]}"
-```
-
-**Delete a moment:**
-```bash
-curl -X DELETE http://moments.test/api/v1/moments/1 \
-  -H "Authorization: Bearer <token>" \
-  -H "Accept: application/json"
-```
-
-## Clients
-
-- **[Moments for iOS](https://github.com/theprivateer/moments-ios)** — a lightweight iOS client for posting to your Moments blog via the REST API.
-
-## Maintenance
-
-### Scheduled tasks
-
-The application includes a scheduled task that automatically removes uploaded images
-that were never attached to a moment (orphaned by an incomplete API upload workflow).
-It runs every 5 minutes and only removes images older than 20 minutes, giving
-in-flight uploads time to complete.
-
-To run the Laravel scheduler (required for automatic cleanup):
+Useful project commands:
 
 ```bash
-php artisan schedule:work
-```
-
-> **Note:** `composer run dev` does not start the scheduler. For local development,
-> run `php artisan schedule:work` in a separate terminal or clean up orphans manually.
-
-### Manual cleanup
-
-To delete orphaned images on demand:
-
-```bash
+composer run dev
+composer run test
+php artisan test --compact --filter=TestName
+vendor/bin/pint --dirty --format agent
+php artisan moments:install
+php artisan moments:glide-key --force
 php artisan moments:delete-orphan-images
 ```

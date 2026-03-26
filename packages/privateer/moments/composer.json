@@ -1,0 +1,35 @@
+{
+    "name": "privateer/moments",
+    "description": "Reusable Moments micro-blog package for Laravel applications.",
+    "type": "library",
+    "version": "1.0.0",
+    "license": "MIT",
+    "require": {
+        "php": "^8.2",
+        "laravel/framework": "^13.0",
+        "laravel/sanctum": "^4.0",
+        "league/commonmark": "^2.8",
+        "league/glide": "^3.2",
+        "livewire/livewire": "^4.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Privateer\\Moments\\": "src/",
+            "Privateer\\Moments\\Database\\Factories\\": "database/factories/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Privateer\\Moments\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Privateer\\Moments\\MomentsServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
