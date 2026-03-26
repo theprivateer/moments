@@ -1,10 +1,10 @@
 <?php
 
-use App\Models\Moment;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
+use Privateer\Moments\Models\Moment;
 
 it('renders for an authenticated user', function () {
     $user = User::factory()->create();

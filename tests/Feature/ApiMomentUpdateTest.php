@@ -1,9 +1,9 @@
 <?php
 
-use App\Models\Moment;
-use App\Models\MomentImage;
 use App\Models\User;
 use Illuminate\Support\Facades\Storage;
+use Privateer\Moments\Models\Moment;
+use Privateer\Moments\Models\MomentImage;
 
 it('updates the body text of a moment', function () {
     $user = User::factory()->create();

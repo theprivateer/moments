@@ -1,7 +1,7 @@
 <?php
 
-use App\Models\Moment;
-use App\Models\MomentImage;
+use Privateer\Moments\Models\Moment;
+use Privateer\Moments\Models\MomentImage;
 
 it('returns an atom feed', function () {
     Moment::factory()->count(3)->create(['body' => 'Hello world']);

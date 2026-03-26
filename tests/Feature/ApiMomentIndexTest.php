@@ -1,8 +1,8 @@
 <?php
 
-use App\Models\Moment;
-use App\Models\MomentImage;
 use App\Models\User;
+use Privateer\Moments\Models\Moment;
+use Privateer\Moments\Models\MomentImage;
 
 it('rejects an unauthenticated request with 401', function () {
     $this->getJson('/api/v1/moments')

@@ -1,11 +1,11 @@
 <?php
 
-use App\Models\Moment;
-use App\Models\MomentImage;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
+use Privateer\Moments\Models\Moment;
+use Privateer\Moments\Models\MomentImage;
 
 it('renders with the existing moment body', function () {
     $moment = Moment::factory()->create(['body' => 'Original body']);

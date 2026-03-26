@@ -1,8 +1,8 @@
 <?php
 
-use App\Models\Moment;
-use App\Models\MomentImage;
 use App\Models\User;
+use Privateer\Moments\Models\Moment;
+use Privateer\Moments\Models\MomentImage;
 
 it('creates a moment with body only and returns 201', function () {
     $user = User::factory()->create();

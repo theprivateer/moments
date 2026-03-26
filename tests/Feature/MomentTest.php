@@ -1,10 +1,10 @@
 <?php
 
-use App\Models\Moment;
-use App\Models\MomentImage;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Privateer\Moments\Models\Moment;
+use Privateer\Moments\Models\MomentImage;
 
 it('shows the timeline publicly', function () {
     $this->get('/')->assertSuccessful();
