@@ -13,7 +13,7 @@
             <pubDate>{{ $moment->created_at->toRfc2822String() }}</pubDate>
             <description><![CDATA[
                 @foreach ($moment->images as $image)
-                    <img src="{{ $image->url() }}" alt="">
+                    <img src="{{ $image->url() }}" alt="{{ $image->alt_text ?: 'Moment image' }}">
                 @endforeach
                 @if ($moment->body)
                     {!! $moment->renderedBody() !!}

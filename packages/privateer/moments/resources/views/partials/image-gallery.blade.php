@@ -5,7 +5,7 @@
             'id' => $image->id,
             'inlineUrl' => $image->glideUrl(800),
             'lightboxUrl' => $image->glideUrl(1200),
-            'alt' => 'Moment image '.($index + 1),
+            'alt' => $image->alt_text ?: 'Moment image',
         ])
         ->all();
 

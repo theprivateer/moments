@@ -20,7 +20,7 @@ The package owns the Moments product surface:
 
 - public timeline and permalinks
 - Markdown rendering
-- image uploads, Glide resizing, and lightbox UI
+- image uploads, Glide resizing, lightbox UI, and optional AI-generated alt text
 - RSS, Atom, and JSON feeds
 - REST API and OpenAPI description
 - login, account, and API token management
@@ -98,6 +98,23 @@ Key host-specific choices:
 
 See [`config/moments.php`](./config/moments.php) for the full set of options and inline documentation.
 
+### AI Alt Text
+
+The package can optionally generate accessibility-focused alt text for uploaded images using Laravel AI.
+
+- enable it with `MOMENTS_ALT_TEXT_ENABLED=true`
+- choose a provider with `MOMENTS_ALT_TEXT_PROVIDER`
+- optionally pin a model with `MOMENTS_ALT_TEXT_MODEL`
+
+When enabled, new uploads queue alt-text generation in the background and store the result on the related `MomentImage` record. Existing images can be backfilled later with:
+
+```bash
+php artisan moments:generate-alt-text
+php artisan moments:generate-alt-text --force
+```
+
+The package uses stored alt text when rendering images, and falls back to a generic `"Moment image"` alt attribute when no generated text is available.
+
 If you use the default `public` filesystem disk for uploads, run:
 
 ```bash
@@ -132,4 +149,6 @@ vendor/bin/pint --dirty --format agent
 php artisan moments:install
 php artisan moments:glide-key --force
 php artisan moments:delete-orphan-images
+php artisan moments:generate-alt-text
+php artisan moments:generate-alt-text --force
 ```

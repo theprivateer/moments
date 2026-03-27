@@ -1,9 +1,4 @@
 
-[mcp_servers.laravel-boost]
-command = "php"
-args = ["artisan", "boost:mcp"]
-cwd = "/Users/phil/Herd/moments"
-
 [mcp_servers.herd]
 command = "php"
 args = ["/Applications/Herd.app/Contents/Resources/herd-mcp.phar"]
@@ -11,3 +6,8 @@ cwd = "/Users/phil/Herd/moments"
 
 [mcp_servers.herd.env]
 SITE_PATH = "/Users/phil/Herd/moments"
+
+[mcp_servers.laravel-boost]
+command = "php"
+args = ["artisan", "boost:mcp"]
+cwd = "/Users/phil/Herd/moments"

@@ -129,7 +129,11 @@ return [
 
     'cookie' => env(
         'SESSION_COOKIE',
-        Str::snake((string) env('APP_NAME', 'laravel')).'_session'
+        /*
+        | The default cookie name must stay browser-safe even when APP_NAME
+        | contains punctuation or Unicode characters.
+        */
+        Str::slug((string) env('APP_NAME', 'laravel'), '_').'_session'
     ),
 
     /*

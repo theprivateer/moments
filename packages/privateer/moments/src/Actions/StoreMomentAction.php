@@ -2,6 +2,7 @@
 
 namespace Privateer\Moments\Actions;
 
+use Privateer\Moments\Jobs\GenerateMomentImageAltText;
 use Privateer\Moments\Support\Moments as MomentsSupport;
 
 class StoreMomentAction
@@ -17,10 +18,14 @@ class StoreMomentAction
 
         foreach ($images as $file) {
             $disk = config('moments.image_disk');
-            $moment->images()->create([
+            $image = $moment->images()->create([
                 'path' => $file->store('moments', $disk),
                 'disk' => $disk,
             ]);
+
+            if (MomentsSupport::altTextEnabled()) {
+                GenerateMomentImageAltText::dispatch($image->id);
+            }
         }
 
         return $moment;

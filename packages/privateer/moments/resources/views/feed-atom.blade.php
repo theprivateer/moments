@@ -18,7 +18,7 @@
         <updated>{{ $moment->updated_at->toAtomString() }}</updated>
         <link rel="alternate" href="{{ route('moments.show', $moment) }}"/>
         <content type="html"><![CDATA[
-            @foreach ($moment->images as $image)<img src="{{ $image->url() }}" alt="">@endforeach
+            @foreach ($moment->images as $image)<img src="{{ $image->url() }}" alt="{{ $image->alt_text ?: 'Moment image' }}">@endforeach
             @if ($moment->body){!! $moment->renderedBody() !!}@endif
         ]]></content>
     </entry>

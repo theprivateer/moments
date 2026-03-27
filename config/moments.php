@@ -32,6 +32,22 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | AI Image Alt Text
+    |--------------------------------------------------------------------------
+    |
+    | Enable this feature to generate accessibility-focused alt text for
+    | uploaded moment images in the background. Choose the AI provider the
+    | package should use, and optionally pin a specific model name.
+    |
+    */
+    'alt_text' => [
+        'enabled' => (bool) env('MOMENTS_ALT_TEXT_ENABLED', false),
+        'provider' => env('MOMENTS_ALT_TEXT_PROVIDER'),
+        'model' => env('MOMENTS_ALT_TEXT_MODEL'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Route Registration
     |--------------------------------------------------------------------------
     |

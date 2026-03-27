@@ -58,6 +58,21 @@ class Moments
         return static::newMomentImageModel()->getTable();
     }
 
+    public static function altTextEnabled(): bool
+    {
+        return (bool) config('moments.alt_text.enabled', false);
+    }
+
+    public static function altTextProvider(): string|array|null
+    {
+        return config('moments.alt_text.provider');
+    }
+
+    public static function altTextModel(): ?string
+    {
+        return config('moments.alt_text.model');
+    }
+
     public static function firstUser(): ?Authenticatable
     {
         return static::userModel()::query()->first();

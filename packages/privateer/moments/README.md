@@ -6,7 +6,7 @@ It provides:
 
 - a public timeline and per-moment pages
 - Markdown post bodies
-- image uploads with Glide-powered resizing
+- image uploads with Glide-powered resizing and optional AI-generated alt text
 - RSS, Atom, and JSON feeds
 - a REST API with an OpenAPI description
 - login, account, and API token screens
@@ -103,6 +103,7 @@ Route names stay stable by default:
 The package config file covers:
 
 - host user model integration
+- AI alt-text generation settings
 - route registration toggles
 - web and API prefixes
 - route name prefixing
@@ -111,6 +112,33 @@ The package config file covers:
 - image disk, image size limit, Glide signing key, and optional timeline intro text
 
 See [`config/moments.php`](./config/moments.php) for the full inline documentation.
+
+### AI Alt Text
+
+The package includes an opt-in AI feature that generates accessibility-focused alt text for uploaded images and stores it on `MomentImage`.
+
+Enable it in `config/moments.php` or via environment variables:
+
+- `MOMENTS_ALT_TEXT_ENABLED=true`
+- `MOMENTS_ALT_TEXT_PROVIDER=openai` (or another configured Laravel AI provider)
+- `MOMENTS_ALT_TEXT_MODEL=` to optionally override the provider's default model
+
+Behavior:
+
+- new uploads queue alt-text generation in the background when the feature is enabled
+- generated alt text is used in package-rendered images, with `"Moment image"` as the fallback
+- existing images can be backfilled later if the feature is enabled after uploads already exist
+
+Because generation runs asynchronously, your host app should have a queue worker running when this feature is enabled.
+
+Backfill commands:
+
+```bash
+php artisan moments:generate-alt-text
+php artisan moments:generate-alt-text --force
+```
+
+The default command only processes images that do not yet have alt text. Use `--force` to regenerate alt text for every image.
 
 ## Assets and UI
 

@@ -3,6 +3,8 @@
 namespace Privateer\Moments\Actions;
 
 use Illuminate\Support\Facades\Storage;
+use Privateer\Moments\Jobs\GenerateMomentImageAltText;
+use Privateer\Moments\Support\Moments as MomentsSupport;
 
 class UpdateMomentAction
 {
@@ -17,10 +19,14 @@ class UpdateMomentAction
 
         foreach ($newImages as $file) {
             $disk = config('moments.image_disk');
-            $moment->images()->create([
+            $image = $moment->images()->create([
                 'path' => $file->store('moments', $disk),
                 'disk' => $disk,
             ]);
+
+            if (MomentsSupport::altTextEnabled()) {
+                GenerateMomentImageAltText::dispatch($image->id);
+            }
         }
 
         $moment->update(['body' => $body]);

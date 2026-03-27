@@ -220,12 +220,13 @@ it('shows the second page of moments', function () {
 
 it('renders gallery markup and a lightbox gallery for images on the timeline', function () {
     $moment = Moment::factory()->create(['body' => 'Hello']);
-    MomentImage::factory()->for($moment)->create();
+    MomentImage::factory()->for($moment)->create(['alt_text' => 'Sunlight across a quiet beach']);
 
     $this->get('/')
         ->assertSuccessful()
         ->assertSee('data-gallery="moment-images"', false)
         ->assertSee('data-lightbox-gallery', false)
+        ->assertSee('alt="Sunlight across a quiet beach"', false)
         ->assertDontSee('data-gallery-controls', false);
 });
 
@@ -245,11 +246,12 @@ it('renders slider controls for moments with multiple images on the timeline', f
 
 it('renders gallery markup and a lightbox gallery for images on the show page', function () {
     $moment = Moment::factory()->create(['body' => 'Hello']);
-    MomentImage::factory()->for($moment)->create();
+    MomentImage::factory()->for($moment)->create(['alt_text' => null]);
 
     $this->get("/moments/{$moment->id}")
         ->assertSuccessful()
         ->assertSee('data-gallery="moment-images"', false)
         ->assertSee('data-lightbox-gallery', false)
+        ->assertSee('alt="Moment image"', false)
         ->assertSee('id="lightbox"', false);
 });

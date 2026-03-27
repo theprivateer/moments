@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
 use Privateer\Moments\Console\Commands\DeleteOrphanImagesCommand;
+use Privateer\Moments\Console\Commands\GenerateAltTextCommand;
 use Privateer\Moments\Console\Commands\GlideKeyCommand;
 use Privateer\Moments\Console\Commands\InstallCommand;
 use Privateer\Moments\Livewire\CreateMoment;
@@ -66,6 +67,7 @@ class MomentsServiceProvider extends ServiceProvider
 
         $this->commands([
             DeleteOrphanImagesCommand::class,
+            GenerateAltTextCommand::class,
             GlideKeyCommand::class,
             InstallCommand::class,
         ]);
