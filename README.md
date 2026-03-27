@@ -78,6 +78,14 @@ This repository intentionally develops the package in-place.
 
 If you are working on the package itself, the package-facing installation and integration guidance lives in [`packages/privateer/moments/README.md`](./packages/privateer/moments/README.md).
 
+To experiment with styling or markup changes from the host app side, you can publish the package views:
+
+```bash
+php artisan vendor:publish --tag=moments-views
+```
+
+This writes the package views to `resources/views/vendor/moments`, where Laravel will prefer your app-level overrides over the package defaults.
+
 ## Host App Configuration
 
 The host app uses the package's config surface but with local-development-friendly defaults.

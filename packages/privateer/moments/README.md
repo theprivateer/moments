@@ -37,6 +37,12 @@ Publish the config file if you want to customize the host integration:
 php artisan vendor:publish --tag=moments-config
 ```
 
+If you want to customize the package Blade views and styling, publish the views into your app:
+
+```bash
+php artisan vendor:publish --tag=moments-views
+```
+
 Run the package migrations:
 
 ```bash
@@ -120,6 +126,12 @@ That means the host app should either:
 - disable package-managed Vite tags with `use_vite_assets => false` and include assets another way
 
 If your Tailwind build scans Blade and JS sources explicitly, make sure it includes the package view and JS paths after installation.
+
+If you prefer to override the packaged markup directly, publish the views to:
+
+- `resources/views/vendor/moments`
+
+Laravel will then load your app-level overrides for the `moments::...` view namespace.
 
 ## API and OpenAPI
 

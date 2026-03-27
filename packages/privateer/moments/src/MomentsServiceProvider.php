@@ -50,6 +50,10 @@ class MomentsServiceProvider extends ServiceProvider
         ], 'moments-assets');
 
         $this->publishes([
+            __DIR__.'/../resources/views' => resource_path('views/vendor/moments'),
+        ], 'moments-views');
+
+        $this->publishes([
             __DIR__.'/../openapi.yaml' => base_path('openapi.yaml'),
         ], 'moments-openapi');
     }
