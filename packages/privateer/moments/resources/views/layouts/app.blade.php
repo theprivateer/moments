@@ -40,15 +40,71 @@
     @livewireScripts
     <dialog
         id="lightbox"
+        x-data
+        @click.self="$store.momentsLightbox.close()"
+        @close="$store.momentsLightbox.reset()"
+        @keydown.window.escape.prevent="$store.momentsLightbox.isOpen && $store.momentsLightbox.close()"
+        @keydown.window.arrow-left.prevent="$store.momentsLightbox.isOpen && $store.momentsLightbox.prev()"
+        @keydown.window.arrow-right.prevent="$store.momentsLightbox.isOpen && $store.momentsLightbox.next()"
         onclick="this.close()"
         class="fixed inset-0 w-full h-full max-w-none max-h-none m-0 p-0 border-0 bg-transparent backdrop:bg-black/75"
     >
         <div onclick="event.stopPropagation()" class="flex items-center justify-center w-full h-full">
-            <div class="relative">
-                <img id="lightbox-image" src="" alt="" class="block max-w-[90vw] max-h-[90vh] object-contain rounded-lg">
-                <form method="dialog" class="absolute top-2 right-2">
-                    <button type="submit" class="flex items-center justify-center bg-black/50 text-white rounded-full size-8 text-lg hover:bg-black/75 cursor-pointer">×</button>
-                </form>
+            <div data-lightbox-gallery class="relative flex max-w-[92vw] flex-col items-center">
+                <template x-if="$store.momentsLightbox.currentImage()">
+                    <img
+                        :src="$store.momentsLightbox.currentImage().lightboxUrl"
+                        :alt="$store.momentsLightbox.currentImage().alt"
+                        class="block max-h-[82vh] max-w-[92vw] rounded-lg object-contain"
+                    >
+                </template>
+
+                <template x-if="$store.momentsLightbox.hasMultiple()">
+                    <div class="pointer-events-none absolute inset-x-0 top-1/2 flex -translate-y-1/2 items-center justify-between px-3">
+                        <button
+                            type="button"
+                            @click="$store.momentsLightbox.prev()"
+                            :disabled="!$store.momentsLightbox.canPrev()"
+                            aria-label="Previous image"
+                            class="pointer-events-auto inline-flex size-10 items-center justify-center rounded-full bg-black/60 text-white transition hover:bg-black/75 disabled:cursor-not-allowed disabled:opacity-40"
+                        >
+                            <span aria-hidden="true">&larr;</span>
+                        </button>
+                        <button
+                            type="button"
+                            @click="$store.momentsLightbox.next()"
+                            :disabled="!$store.momentsLightbox.canNext()"
+                            aria-label="Next image"
+                            class="pointer-events-auto inline-flex size-10 items-center justify-center rounded-full bg-black/60 text-white transition hover:bg-black/75 disabled:cursor-not-allowed disabled:opacity-40"
+                        >
+                            <span aria-hidden="true">&rarr;</span>
+                        </button>
+                    </div>
+                </template>
+
+                <div x-show="$store.momentsLightbox.hasMultiple()" class="mt-4 flex w-full max-w-xl items-center justify-between gap-3 px-3">
+                    <p aria-live="polite" class="text-sm text-white/80" x-text="$store.momentsLightbox.statusLabel()"></p>
+
+                    <div class="flex items-center gap-2">
+                        <template x-for="(image, index) in $store.momentsLightbox.images" :key="image.id">
+                            <button
+                                type="button"
+                                @click="$store.momentsLightbox.goTo(index)"
+                                :aria-current="$store.momentsLightbox.currentIndex === index ? 'true' : 'false'"
+                                :aria-label="`Go to image ${index + 1}`"
+                                class="size-3 rounded-full border border-white/70 transition"
+                                :class="$store.momentsLightbox.currentIndex === index ? 'bg-white border-white' : 'bg-transparent hover:bg-white/40'"
+                            ></button>
+                        </template>
+                    </div>
+                </div>
+
+                <button
+                    type="button"
+                    @click="$store.momentsLightbox.close()"
+                    aria-label="Close lightbox"
+                    class="absolute right-2 top-2 flex size-8 items-center justify-center rounded-full bg-black/50 text-lg text-white hover:bg-black/75 cursor-pointer"
+                >×</button>
             </div>
         </div>
     </dialog>

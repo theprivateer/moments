@@ -35,15 +35,7 @@
                 </div>
             @endif
 
-            @foreach ($moment->images as $image)
-                <button
-                    type="button"
-                    onclick="openLightbox('{{ $image->glideUrl(1200) }}')"
-                    class="block w-full cursor-zoom-in"
-                >
-                    <img src="{{ $image->glideUrl(800) }}" alt="Moment image" class="w-full rounded-md mb-3 object-cover aspect-square">
-                </button>
-            @endforeach
+            @include('moments::partials.image-gallery', ['moment' => $moment])
         </article>
     @empty
         <p class="text-center text-gray-400 py-16">No moments yet. Be the first to share something!</p>

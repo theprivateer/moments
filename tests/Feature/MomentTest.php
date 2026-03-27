@@ -218,22 +218,38 @@ it('shows the second page of moments', function () {
         ->assertViewHas('moments', fn ($moments) => $moments->count() === 5);
 });
 
-it('renders a lightbox trigger for images on the timeline', function () {
+it('renders gallery markup and a lightbox gallery for images on the timeline', function () {
     $moment = Moment::factory()->create(['body' => 'Hello']);
     MomentImage::factory()->for($moment)->create();
 
     $this->get('/')
         ->assertSuccessful()
-        ->assertSee('openLightbox(', false)
+        ->assertSee('data-gallery="moment-images"', false)
+        ->assertSee('data-lightbox-gallery', false)
+        ->assertDontSee('data-gallery-controls', false);
+});
+
+it('renders slider controls for moments with multiple images on the timeline', function () {
+    $moment = Moment::factory()->create(['body' => 'Hello']);
+    MomentImage::factory()->for($moment)->create();
+    MomentImage::factory()->for($moment)->create();
+
+    $this->get('/')
+        ->assertSuccessful()
+        ->assertSee('data-gallery-controls', false)
+        ->assertSee('aria-label="Previous image"', false)
+        ->assertSee('aria-label="Next image"', false)
+        ->assertSee('aria-label="Go to image 2"', false)
         ->assertSee('id="lightbox"', false);
 });
 
-it('renders a lightbox trigger for images on the show page', function () {
+it('renders gallery markup and a lightbox gallery for images on the show page', function () {
     $moment = Moment::factory()->create(['body' => 'Hello']);
     MomentImage::factory()->for($moment)->create();
 
     $this->get("/moments/{$moment->id}")
         ->assertSuccessful()
-        ->assertSee('openLightbox(', false)
+        ->assertSee('data-gallery="moment-images"', false)
+        ->assertSee('data-lightbox-gallery', false)
         ->assertSee('id="lightbox"', false);
 });
