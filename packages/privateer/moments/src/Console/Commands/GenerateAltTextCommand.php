@@ -34,6 +34,11 @@ class GenerateAltTextCommand extends Command
         $processed = 0;
         $failed = 0;
 
+        $this->components->info("Generating alt text for {$targetImages} image(s).");
+
+        $progressBar = $this->output->createProgressBar($targetImages);
+        $progressBar->start();
+
         foreach ($candidateQuery->cursor() as $momentImage) {
             try {
                 $generator->store($momentImage);
@@ -43,8 +48,13 @@ class GenerateAltTextCommand extends Command
 
                 report($exception);
                 $this->components->warn("Failed to generate alt text for image {$momentImage->id}.");
+            } finally {
+                $progressBar->advance();
             }
         }
+
+        $progressBar->finish();
+        $this->newLine(2);
 
         $this->components->info("Processed {$processed} image(s).");
         $this->components->info("Skipped {$skipped} image(s).");

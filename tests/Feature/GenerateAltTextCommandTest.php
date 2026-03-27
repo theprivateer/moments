@@ -12,6 +12,7 @@ it('processes only images without alt text by default', function () {
     ]);
 
     $this->artisan('moments:generate-alt-text')
+        ->expectsOutputToContain('Generating alt text for 1 image(s).')
         ->expectsOutputToContain('Processed 1 image(s).')
         ->expectsOutputToContain('Skipped 1 image(s).')
         ->expectsOutputToContain('Failed 0 image(s).')
@@ -31,6 +32,7 @@ it('reprocesses all images when force is enabled', function () {
     ]);
 
     $this->artisan('moments:generate-alt-text', ['--force' => true])
+        ->expectsOutputToContain('Generating alt text for 2 image(s).')
         ->expectsOutputToContain('Processed 2 image(s).')
         ->expectsOutputToContain('Skipped 0 image(s).')
         ->expectsOutputToContain('Failed 0 image(s).')
