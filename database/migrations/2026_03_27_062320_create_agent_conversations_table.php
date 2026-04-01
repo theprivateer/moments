@@ -4,8 +4,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use Laravel\Ai\Migrations\AiMigration;
 
-return new class extends AiMigration
-{
+return new class extends AiMigration {
     /**
      * Run the migrations.
      */
@@ -37,14 +36,5 @@ return new class extends AiMigration
             $table->index(['conversation_id', 'user_id', 'updated_at'], 'conversation_index');
             $table->index(['user_id']);
         });
-    }
-
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
-    {
-        Schema::dropIfExists('agent_conversations');
-        Schema::dropIfExists('agent_conversation_messages');
     }
 };
