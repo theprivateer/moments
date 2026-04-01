@@ -3,10 +3,15 @@
 namespace Privateer\Moments\Actions;
 
 use Privateer\Moments\Jobs\GenerateMomentImageAltText;
+use Privateer\Moments\Services\SyncMomentTags;
 use Privateer\Moments\Support\Moments as MomentsSupport;
 
 class StoreMomentAction
 {
+    public function __construct(
+        protected SyncMomentTags $syncMomentTags,
+    ) {}
+
     public function execute(int $userId, ?string $body, array $images): object
     {
         $momentModel = MomentsSupport::momentModel();
@@ -27,6 +32,8 @@ class StoreMomentAction
                 GenerateMomentImageAltText::dispatch($image->id);
             }
         }
+
+        $this->syncMomentTags->sync($moment);
 
         return $moment;
     }

@@ -5,6 +5,8 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Privateer\Moments\Models\Moment;
 use Privateer\Moments\Models\MomentImage;
+use Privateer\Moments\Support\Hashtags;
+use Spatie\Tags\Tag;
 
 it('shows the timeline publicly', function () {
     $this->get('/')->assertSuccessful();
@@ -21,6 +23,20 @@ it('lets an authenticated user create a moment', function () {
         'user_id' => $user->id,
         'body' => 'Hello **world**',
     ]);
+});
+
+it('extracts hashtags when creating a moment', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->post('/moments', ['body' => 'Building with #Laravel and #Livewire and #laravel'])
+        ->assertRedirect('/');
+
+    expect(Tag::findFromString('laravel', Hashtags::TYPE))->not->toBeNull();
+    expect(Tag::findFromString('livewire', Hashtags::TYPE))->not->toBeNull();
+
+    $moment = Moment::where('user_id', $user->id)->firstOrFail();
+    expect($moment->tags->pluck('name')->all())->toBe(['laravel', 'livewire']);
 });
 
 it('requires a body when no image is provided on store', function () {
@@ -183,12 +199,43 @@ it('removes a specific image on update', function () {
     $this->assertDatabaseHas('moment_images', ['id' => $imageToKeep->id]);
 });
 
+it('re-syncs hashtags when a moment is updated', function () {
+    $moment = Moment::factory()->create(['body' => 'Shipping #laravel today']);
+    $moment->syncTagsWithType(['laravel'], Hashtags::TYPE);
+
+    $this->actingAs($moment->user)
+        ->patch("/moments/{$moment->id}", ['body' => 'Now #php and #testing'])
+        ->assertRedirect('/');
+
+    expect($moment->fresh()->tags->pluck('name')->all())->toBe(['php', 'testing']);
+    expect(Tag::findFromString('laravel', Hashtags::TYPE))->not->toBeNull();
+});
+
 it('shows a single moment', function () {
     $moment = Moment::factory()->create(['body' => '# Hello']);
 
     $this->get("/moments/{$moment->id}")
         ->assertSuccessful()
         ->assertSee($moment->created_at->diffForHumans());
+});
+
+it('renders hashtags as links in moment bodies', function () {
+    $moment = Moment::factory()->create(['body' => 'Hello #Laravel']);
+
+    $this->get("/moments/{$moment->id}")
+        ->assertSuccessful()
+        ->assertSee('href="'.route('tags.show', ['tag' => 'laravel']).'"', false)
+        ->assertSee('>#laravel</a>', false);
+});
+
+it('does not create hashtags from embedded hash fragments', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->post('/moments', ['body' => 'An email#fragment should stay plain text'])
+        ->assertRedirect('/');
+
+    expect(Tag::query()->count())->toBe(0);
 });
 
 it('shows edit and delete actions to the moment author', function () {
@@ -216,6 +263,25 @@ it('shows the second page of moments', function () {
     $this->get('/?page=2')
         ->assertSuccessful()
         ->assertViewHas('moments', fn ($moments) => $moments->count() === 5);
+});
+
+it('shows a tag page with matching moments only', function () {
+    $taggedMoment = Moment::factory()->create(['body' => 'One for #laravel']);
+    $taggedMoment->syncTagsWithType(['laravel'], Hashtags::TYPE);
+
+    $otherMoment = Moment::factory()->create(['body' => 'One for #php']);
+    $otherMoment->syncTagsWithType(['php'], Hashtags::TYPE);
+
+    $this->get('/tags/laravel')
+        ->assertSuccessful()
+        ->assertSee('#laravel')
+        ->assertSee('One for')
+        ->assertSee('href="'.route('tags.show', ['tag' => 'laravel']).'"', false)
+        ->assertDontSee('One for #php');
+});
+
+it('returns 404 for an unknown tag page', function () {
+    $this->get('/tags/missing-tag')->assertNotFound();
 });
 
 it('renders gallery markup and a lightbox gallery for images on the timeline', function () {

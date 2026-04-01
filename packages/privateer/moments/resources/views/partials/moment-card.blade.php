@@ -1,0 +1,25 @@
+<article class="bg-white border border-gray-200 rounded-lg p-4 mb-4">
+    <div class="flex items-center justify-between mb-2">
+        <div class="flex items-center gap-2">
+            <span class="text-gray-400 text-xs">{{ $moment->created_at->diffForHumans() }}</span>
+        </div>
+        @can('update', $moment)
+            <div class="flex items-center gap-3 text-sm">
+                <a href="{{ route('moments.edit', $moment) }}" class="text-gray-500 hover:text-gray-900">Edit</a>
+                <form method="POST" action="{{ route('moments.destroy', $moment) }}">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="text-red-500 hover:text-red-700 cursor-pointer" onclick="return confirm('Delete this moment?')">Delete</button>
+                </form>
+            </div>
+        @endcan
+    </div>
+
+    @if ($moment->body)
+        <div class="prose text-gray-800">
+            {!! $moment->renderedBody() !!}
+        </div>
+    @endif
+
+    @include('moments::partials.image-gallery', ['moment' => $moment])
+</article>

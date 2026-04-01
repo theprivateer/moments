@@ -11,7 +11,9 @@ use Privateer\Moments\Actions\UpdateMomentAction;
 use Privateer\Moments\Http\Requests\StoreMomentRequest;
 use Privateer\Moments\Http\Requests\UpdateMomentRequest;
 use Privateer\Moments\Models\Moment;
+use Privateer\Moments\Support\Hashtags;
 use Privateer\Moments\Support\Moments as MomentsSupport;
+use Spatie\Tags\Tag;
 
 class MomentController extends Controller
 {
@@ -32,6 +34,26 @@ class MomentController extends Controller
         $moment->load(['user', 'images']);
 
         return view('moments::moments.show', ['moment' => $moment]);
+    }
+
+    public function tag(string $tag): View
+    {
+        $tagModel = config('tags.tag_model', Tag::class);
+        $hashtag = $tagModel::findFromString($tag, Hashtags::TYPE);
+
+        abort_if($hashtag === null, 404);
+
+        $momentModel = MomentsSupport::momentModel();
+        $moments = $momentModel::query()
+            ->with(['user', 'images'])
+            ->whereHas('tags', fn ($query) => $query->whereKey($hashtag->getKey()))
+            ->latest()
+            ->simplePaginate(10);
+
+        return view('moments::moments.tag', [
+            'tag' => $hashtag,
+            'moments' => $moments,
+        ]);
     }
 
     public function store(StoreMomentRequest $request, StoreMomentAction $action): RedirectResponse

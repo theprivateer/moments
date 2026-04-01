@@ -13,6 +13,7 @@ use Privateer\Moments\Http\Controllers\TokenController;
 Route::get('/img/{path}', GlideController::class)->where('path', '.*')->name('glide');
 
 Route::get('/', [MomentController::class, 'index'])->name('moments.index');
+Route::get('/tags/{tag}', [MomentController::class, 'tag'])->name('tags.show');
 Route::get('/moments/{moment}', [MomentController::class, 'show'])->name('moments.show');
 Route::get('/feed', FeedController::class)->name('feed');
 Route::get('/feed/atom', AtomFeedController::class)->name('feed.atom');

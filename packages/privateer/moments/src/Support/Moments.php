@@ -95,6 +95,11 @@ class Moments
         return $prefix === '' ? '' : $prefix.'.';
     }
 
+    public static function routeName(string $name): string
+    {
+        return static::routeNamePrefix().$name;
+    }
+
     protected static function normalizePrefix(?string $prefix): string
     {
         $prefix = trim((string) $prefix);

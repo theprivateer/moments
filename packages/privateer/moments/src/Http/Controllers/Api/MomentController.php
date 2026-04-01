@@ -13,6 +13,7 @@ use Privateer\Moments\Http\Requests\Api\StoreMomentRequest;
 use Privateer\Moments\Http\Requests\Api\UpdateMomentRequest;
 use Privateer\Moments\Http\Resources\MomentResource;
 use Privateer\Moments\Models\Moment;
+use Privateer\Moments\Services\SyncMomentTags;
 use Privateer\Moments\Support\Moments as MomentsSupport;
 
 class MomentController extends Controller
@@ -22,14 +23,14 @@ class MomentController extends Controller
         $momentModel = MomentsSupport::momentModel();
 
         $moments = $momentModel::query()
-            ->with('images')
+            ->with(['images', 'tags'])
             ->latest()
             ->paginate(20);
 
         return MomentResource::collection($moments);
     }
 
-    public function store(StoreMomentRequest $request): JsonResponse
+    public function store(StoreMomentRequest $request, SyncMomentTags $syncMomentTags): JsonResponse
     {
         $momentModel = MomentsSupport::momentModel();
         $momentImageModel = MomentsSupport::momentImageModel();
@@ -55,12 +56,13 @@ class MomentController extends Controller
                 ->update(['moment_id' => $moment->id]);
         }
 
-        $moment->load('images');
+        $syncMomentTags->sync($moment);
+        $moment->load(['images', 'tags']);
 
         return (new MomentResource($moment))->response()->setStatusCode(201);
     }
 
-    public function update(UpdateMomentRequest $request, Moment $moment): JsonResponse
+    public function update(UpdateMomentRequest $request, Moment $moment, SyncMomentTags $syncMomentTags): JsonResponse
     {
         $momentImageModel = MomentsSupport::momentImageModel();
 
@@ -88,7 +90,8 @@ class MomentController extends Controller
             $moment->update(['body' => $validated['body']]);
         }
 
-        $moment->load('images');
+        $syncMomentTags->sync($moment);
+        $moment->load(['images', 'tags']);
 
         return (new MomentResource($moment))->response();
     }

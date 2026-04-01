@@ -4,6 +4,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Storage;
 use Privateer\Moments\Models\Moment;
 use Privateer\Moments\Models\MomentImage;
+use Privateer\Moments\Support\Hashtags;
 
 it('updates the body text of a moment', function () {
     $user = User::factory()->create();
@@ -16,6 +17,21 @@ it('updates the body text of a moment', function () {
         ->assertJsonPath('data.body', 'Updated');
 
     $this->assertDatabaseHas('moments', ['id' => $moment->id, 'body' => 'Updated']);
+});
+
+it('re-syncs hashtags and returns them in the API response', function () {
+    $user = User::factory()->create();
+    $token = $user->createToken('test')->plainTextToken;
+    $moment = Moment::factory()->for($user)->create(['body' => 'Original #laravel']);
+    $moment->syncTagsWithType(['laravel'], Hashtags::TYPE);
+
+    $this->withToken($token)
+        ->patchJson("/api/v1/moments/{$moment->id}", ['body' => 'Updated #php'])
+        ->assertOk()
+        ->assertJsonPath('data.tags.0.name', 'php')
+        ->assertJsonMissing(['name' => 'laravel']);
+
+    expect($moment->fresh()->tags->pluck('name')->all())->toBe(['php']);
 });
 
 it('adds pre-uploaded images to a moment', function () {

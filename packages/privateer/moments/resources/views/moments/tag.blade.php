@@ -1,20 +1,14 @@
 @extends('moments::layouts.app')
 
 @section('content')
-    @auth
-        <livewire:create-moment />
-    @endauth
-
-    @if ($intro)
-        <div class="prose text-gray-800 mb-6">
-            {!! $intro !!}
-        </div>
-    @endif
+    <div class="mb-6">
+        <h1 class="text-2xl font-semibold text-gray-900">#{{ $tag->name }}</h1>
+    </div>
 
     @forelse ($moments as $moment)
         @include('moments::partials.moment-card', ['moment' => $moment])
     @empty
-        <p class="text-center text-gray-400 py-16">No moments yet. Be the first to share something!</p>
+        <p class="text-center text-gray-400 py-16">No moments found for this tag.</p>
     @endforelse
 
     <div class="mt-6">

@@ -302,7 +302,7 @@ components:
 
     Moment:
       type: object
-      required: [id, body, body_html, created_at, images]
+      required: [id, body, body_html, created_at, images, tags]
       properties:
         id:
           type: integer
@@ -321,6 +321,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/MomentImage'
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/MomentTag'
 
     MomentImage:
       type: object
@@ -332,6 +336,18 @@ components:
           type: string
           format: uri
           description: Signed Glide URL for the image
+
+    MomentTag:
+      type: object
+      required: [name, slug, url]
+      properties:
+        name:
+          type: string
+        slug:
+          type: string
+        url:
+          type: string
+          format: uri
 
     ErrorResponse:
       type: object

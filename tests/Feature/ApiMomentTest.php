@@ -3,6 +3,8 @@
 use App\Models\User;
 use Privateer\Moments\Models\Moment;
 use Privateer\Moments\Models\MomentImage;
+use Privateer\Moments\Support\Hashtags;
+use Spatie\Tags\Tag;
 
 it('creates a moment with body only and returns 201', function () {
     $user = User::factory()->create();
@@ -14,6 +16,20 @@ it('creates a moment with body only and returns 201', function () {
         ->assertJsonPath('data.body', 'Hello API');
 
     $this->assertDatabaseHas('moments', ['user_id' => $user->id, 'body' => 'Hello API']);
+});
+
+it('creates a moment with synced hashtag data in the API response', function () {
+    $user = User::factory()->create();
+    $token = $user->createToken('test')->plainTextToken;
+
+    $this->withToken($token)
+        ->postJson('/api/v1/moments', ['body' => 'Hello #Laravel'])
+        ->assertCreated()
+        ->assertJsonPath('data.tags.0.name', 'laravel')
+        ->assertJsonPath('data.tags.0.slug', 'laravel')
+        ->assertJsonPath('data.body_html', '<p>Hello <a href="'.route('tags.show', ['tag' => 'laravel']).'">#laravel</a></p>'."\n");
+
+    expect(Tag::findFromString('laravel', Hashtags::TYPE))->not->toBeNull();
 });
 
 it('creates a moment with pre-uploaded image IDs and returns 201', function () {

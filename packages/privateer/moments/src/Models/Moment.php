@@ -6,13 +6,15 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Str;
 use Privateer\Moments\Database\Factories\MomentFactory;
+use Privateer\Moments\Markdown\HashtagMarkdownRenderer;
 use Privateer\Moments\Support\Moments as MomentsSupport;
+use Spatie\Tags\HasTags;
 
 class Moment extends Model
 {
     use HasFactory;
+    use HasTags;
 
     protected $fillable = ['user_id', 'body'];
 
@@ -33,13 +35,6 @@ class Moment extends Model
 
     public function renderedBody(): ?string
     {
-        if ($this->body === null) {
-            return null;
-        }
-
-        return Str::markdown($this->body, [
-            'html_input' => 'strip',
-            'allow_unsafe_links' => false,
-        ]);
+        return app(HashtagMarkdownRenderer::class)->render($this->body);
     }
 }
