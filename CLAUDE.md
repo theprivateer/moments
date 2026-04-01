@@ -128,6 +128,24 @@ All three formats are linked in `layouts/app.blade.php` via `<link rel="alternat
 
 The Atom feed also passes `$user` (via `User::first()`) to the view for the `<author>` element.
 
+### Hashtag Tagging
+
+Moments uses `spatie/laravel-tags` to tag posts with hashtags extracted from `body` text.
+
+**How it works:**
+- `ExtractHashtags` service parses `#word` patterns from body text using regex
+- `SyncMomentTags` service calls `$moment->syncTagsWithType($tags, Hashtags::TYPE)` after every store/update
+- `HashtagInlineParser` (CommonMark inline parser) converts `#hashtag` to a link during Markdown rendering
+- `HashtagMarkdownRenderer` wraps the CommonMark `Environment` with the parser registered; it is used by `Moment::renderedBody()`
+- `Hashtags::TYPE = 'moment-hashtag'` — tag type constant used to scope tags to moments
+
+**Routes:**
+- `GET /tags/{tag}` (named `tags.show`) — lists moments for a given hashtag slug
+
+**API:** `MomentResource` includes a `tags` array (`name`, `slug`, `url`) when tags are loaded.
+
+**Backfill command** (host app): `php artisan moments:backfill-tags` — re-syncs tags for all existing moments.
+
 ### Authentication
 
 - **Web** — session-based (`middleware('auth')`), managed by `Auth\LoginController`

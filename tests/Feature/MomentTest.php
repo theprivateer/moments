@@ -228,6 +228,18 @@ it('renders hashtags as links in moment bodies', function () {
         ->assertSee('>#laravel</a>', false);
 });
 
+it('renders plain urls as clickable links alongside hashtags', function () {
+    $moment = Moment::factory()->create([
+        'body' => 'Visit https://example.com and say hi to #Laravel',
+    ]);
+
+    $this->get("/moments/{$moment->id}")
+        ->assertSuccessful()
+        ->assertSee('href="https://example.com"', false)
+        ->assertSee('>https://example.com</a>', false)
+        ->assertSee('href="'.route('tags.show', ['tag' => 'laravel']).'"', false);
+});
+
 it('does not create hashtags from embedded hash fragments', function () {
     $user = User::factory()->create();
 

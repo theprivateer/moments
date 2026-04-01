@@ -4,6 +4,7 @@ namespace Privateer\Moments\Markdown;
 
 use League\CommonMark\Environment\Environment;
 use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
+use League\CommonMark\Extension\GithubFlavoredMarkdownExtension;
 use League\CommonMark\MarkdownConverter;
 
 class HashtagMarkdownRenderer
@@ -18,6 +19,7 @@ class HashtagMarkdownRenderer
         ]);
 
         $environment->addExtension(new CommonMarkCoreExtension);
+        $environment->addExtension(new GithubFlavoredMarkdownExtension);
         $environment->addInlineParser($hashtagInlineParser);
 
         $this->converter = new MarkdownConverter($environment);

@@ -19,7 +19,8 @@ The host app mounts the package at `/` so the local experience still behaves lik
 The package owns the Moments product surface:
 
 - public timeline and permalinks
-- Markdown rendering
+- Markdown rendering with hashtag auto-linking
+- hashtag tagging system with per-tag pages
 - image uploads, Glide resizing, lightbox UI, and optional AI-generated alt text
 - RSS, Atom, and JSON feeds
 - REST API and OpenAPI description
@@ -151,4 +152,5 @@ php artisan moments:glide-key --force
 php artisan moments:delete-orphan-images
 php artisan moments:generate-alt-text
 php artisan moments:generate-alt-text --force
+php artisan moments:backfill-tags
 ```
