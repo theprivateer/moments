@@ -65,6 +65,7 @@ it('stores the uploaded image on the configured disk', function () {
 
     $image = Moment::where('user_id', $user->id)->first()->images()->first();
     expect($image)->not->toBeNull();
+    expect($image->sort_order)->toBe(1);
     Storage::disk('public')->assertExists($image->path);
 });
 
@@ -87,9 +88,37 @@ it('removes a pending image from the array', function () {
     $file1 = UploadedFile::fake()->image('a.jpg');
     $file2 = UploadedFile::fake()->image('b.jpg');
 
-    Livewire::actingAs($user)
+    $component = Livewire::actingAs($user)
         ->test('create-moment')
-        ->set('images', [$file1, $file2])
-        ->call('removeImage', 0)
+        ->set('images', [$file1, $file2]);
+
+    $handle = $component->get('imageOrder')[0];
+
+    $component
+        ->call('removeImage', $handle)
         ->assertSet('images', fn ($images) => count($images) === 1);
+});
+
+it('persists the reordered upload order', function () {
+    Storage::fake('public');
+
+    $user = User::factory()->create();
+    $fileA = UploadedFile::fake()->image('a.jpg');
+    $fileB = UploadedFile::fake()->image('b.jpg');
+
+    $component = Livewire::actingAs($user)
+        ->test('create-moment')
+        ->set('body', 'Ordered')
+        ->set('images', [$fileA, $fileB]);
+
+    $firstHandle = $component->get('imageOrder')[0];
+
+    $component
+        ->call('moveImage', $firstHandle, 'right')
+        ->call('save');
+
+    $moment = Moment::where('user_id', $user->id)->firstOrFail();
+    $paths = $moment->images()->orderBy('sort_order')->pluck('path')->all();
+
+    expect($paths)->toBe([$fileB->hashName('moments'), $fileA->hashName('moments')]);
 });

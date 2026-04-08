@@ -45,10 +45,10 @@ it('creates a moment with pre-uploaded image IDs and returns 201', function () {
 
     $moment = Moment::where('user_id', $user->id)->first();
     expect($moment->images()->count())->toBe(1);
-    $this->assertDatabaseHas('moment_images', ['id' => $image->id, 'moment_id' => $moment->id]);
+    $this->assertDatabaseHas('moment_images', ['id' => $image->id, 'moment_id' => $moment->id, 'sort_order' => 1]);
 });
 
-it('creates a moment with body and multiple image IDs and returns image urls', function () {
+it('creates a moment with body and multiple ordered image IDs and returns positions', function () {
     $user = User::factory()->create();
     $token = $user->createToken('test')->plainTextToken;
 
@@ -58,13 +58,17 @@ it('creates a moment with body and multiple image IDs and returns image urls', f
     $response = $this->withToken($token)
         ->postJson('/api/v1/moments', [
             'body' => 'With images',
-            'images' => [$imageA->id, $imageB->id],
+            'images' => [$imageB->id, $imageA->id],
         ])
         ->assertCreated();
 
     $images = $response->json('data.images');
     expect($images)->toHaveCount(2);
-    expect($images[0])->toHaveKeys(['id', 'url']);
+    expect($images[0])->toHaveKeys(['id', 'url', 'position']);
+    expect($images[0]['id'])->toBe($imageB->id);
+    expect($images[0]['position'])->toBe(1);
+    expect($images[1]['id'])->toBe($imageA->id);
+    expect($images[1]['position'])->toBe(2);
 });
 
 it('rejects a request with neither body nor images', function () {

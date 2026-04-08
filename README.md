@@ -21,7 +21,7 @@ The package owns the Moments product surface:
 - public timeline and permalinks
 - Markdown rendering with hashtag auto-linking
 - hashtag tagging system with per-tag pages
-- image uploads, Glide resizing, lightbox UI, and optional AI-generated alt text
+- image uploads, persisted image ordering across web/API flows, Glide resizing, lightbox UI, and optional AI-generated alt text
 - RSS, Atom, and JSON feeds
 - REST API and OpenAPI description
 - login, account, and API token management
@@ -137,6 +137,14 @@ In this host app, the package API is mounted at:
 - `DELETE /api/v1/moments/{moment}`
 
 API authentication uses Sanctum personal access tokens managed through the account UI.
+
+For image ordering:
+
+- `POST /api/v1/moments` persists images in the order provided by the `images` array
+- `PATCH /api/v1/moments/{moment}` accepts `image_order` for reorder-only or mixed reorder/add/remove updates
+- image objects in API responses include a numeric `position` field
+
+The packaged create and edit forms also let authors reorder images before saving.
 
 ## Commands
 

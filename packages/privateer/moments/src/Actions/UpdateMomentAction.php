@@ -2,40 +2,32 @@
 
 namespace Privateer\Moments\Actions;
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Privateer\Moments\Jobs\GenerateMomentImageAltText;
 use Privateer\Moments\Services\SyncMomentTags;
-use Privateer\Moments\Support\Moments as MomentsSupport;
+use Privateer\Moments\Support\SyncMomentImages;
 
 class UpdateMomentAction
 {
     public function __construct(
         protected SyncMomentTags $syncMomentTags,
+        protected SyncMomentImages $syncMomentImages,
     ) {}
 
-    public function execute(object $moment, ?string $body, array $removeIds, array $newImages): object
+    public function execute(object $moment, ?string $body, array $removeIds, array $orderedImages): object
     {
-        $toRemove = $moment->images()->whereIn('id', $removeIds)->get();
+        DB::transaction(function () use ($body, $moment, $orderedImages, $removeIds): void {
+            $toRemove = $moment->images()->whereIn('id', $removeIds)->get();
 
-        foreach ($toRemove as $image) {
-            Storage::disk($image->disk)->delete($image->path);
-            $image->delete();
-        }
-
-        foreach ($newImages as $file) {
-            $disk = config('moments.image_disk');
-            $image = $moment->images()->create([
-                'path' => $file->store('moments', $disk),
-                'disk' => $disk,
-            ]);
-
-            if (MomentsSupport::altTextEnabled()) {
-                GenerateMomentImageAltText::dispatch($image->id);
+            foreach ($toRemove as $image) {
+                Storage::disk($image->disk)->delete($image->path);
+                $image->delete();
             }
-        }
 
-        $moment->update(['body' => $body]);
-        $this->syncMomentTags->sync($moment);
+            $this->syncMomentImages->sync($moment, $orderedImages);
+            $moment->update(['body' => $body]);
+            $this->syncMomentTags->sync($moment);
+        });
 
         return $moment;
     }

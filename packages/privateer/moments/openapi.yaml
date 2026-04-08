@@ -93,6 +93,7 @@ paths:
           When no images are provided, `body` is required.
           When no body is provided, at least one image ID is required.
           Image IDs are obtained by first uploading via `POST /api/v1/images`.
+          The `images` array is order-sensitive and will be persisted as the final image order.
         content:
           application/json:
             schema:
@@ -106,7 +107,7 @@ paths:
                   type: array
                   items:
                     type: integer
-                  description: IDs of pre-uploaded images (from POST /api/v1/images). Required when no body is supplied.
+                  description: Ordered IDs of pre-uploaded images (from POST /api/v1/images). Required when no body is supplied.
                 created_at:
                   type: integer
                   description: >
@@ -150,6 +151,8 @@ paths:
           remain after the update — if removing all images, `body` must be supplied.
           Use `add_images` for IDs obtained from `POST /api/v1/images`.
           Use `remove_images` for IDs of images currently attached to this moment.
+          Use `image_order` to persist the final ordered list of images after the patch, including
+          newly added images and excluding removed ones. Supplying only `image_order` performs a reorder-only update.
         content:
           application/json:
             schema:
@@ -170,6 +173,11 @@ paths:
                   items:
                     type: integer
                   description: IDs of existing images to remove from this moment.
+                image_order:
+                  type: array
+                  items:
+                    type: integer
+                  description: Final ordered list of image IDs that should remain attached after the update.
       responses:
         '200':
           description: Moment updated
@@ -328,7 +336,7 @@ components:
 
     MomentImage:
       type: object
-      required: [id, url]
+      required: [id, url, position]
       properties:
         id:
           type: integer
@@ -336,6 +344,9 @@ components:
           type: string
           format: uri
           description: Signed Glide URL for the image
+        position:
+          type: integer
+          description: 1-based persisted position of the image within the moment.
 
     MomentTag:
       type: object

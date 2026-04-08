@@ -23,18 +23,37 @@
             @enderror
         </div>
 
-        @if (count($images))
-            <div class="mb-3 flex flex-wrap gap-2">
-                @foreach ($images as $index => $image)
-                    <div wire:key="pending-{{ $index }}" class="relative">
-                        <img src="{{ $image->temporaryUrl() }}" alt="Pending image" class="h-20 w-20 object-cover rounded-md">
-                        <button
-                            type="button"
-                            wire:click="removeImage({{ $index }})"
-                            class="absolute -top-1 -right-1 flex items-center justify-center bg-black/60 text-white rounded-full size-5 text-xs leading-none hover:bg-black/80 cursor-pointer"
-                        >×</button>
-                    </div>
-                @endforeach
+        @if (count($this->orderedImagePreviews))
+            <div class="mb-4">
+                <p class="mb-2 text-sm font-medium text-gray-700">Image order</p>
+                <div class="flex flex-wrap gap-3">
+                    @foreach ($this->orderedImagePreviews as $index => $image)
+                        <div wire:key="pending-{{ $image['handle'] }}" class="w-28">
+                            <img src="{{ $image['temporary_url'] }}" alt="Pending image" class="h-24 w-full rounded-md object-cover">
+                            <div class="mt-2 flex items-center justify-between gap-1">
+                                <button
+                                    type="button"
+                                    wire:click="moveImage('{{ $image['handle'] }}', 'left')"
+                                    @disabled($index === 0)
+                                    class="inline-flex h-8 w-8 items-center justify-center rounded-md border border-gray-300 text-sm text-gray-700 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40"
+                                    aria-label="Move image left"
+                                >&larr;</button>
+                                <button
+                                    type="button"
+                                    wire:click="removeImage('{{ $image['handle'] }}')"
+                                    class="inline-flex h-8 flex-1 items-center justify-center rounded-md bg-gray-900 px-2 text-xs font-medium text-white hover:bg-gray-700"
+                                >Remove</button>
+                                <button
+                                    type="button"
+                                    wire:click="moveImage('{{ $image['handle'] }}', 'right')"
+                                    @disabled($index === count($this->orderedImagePreviews) - 1)
+                                    class="inline-flex h-8 w-8 items-center justify-center rounded-md border border-gray-300 text-sm text-gray-700 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40"
+                                    aria-label="Move image right"
+                                >&rarr;</button>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
             </div>
         @endif
 

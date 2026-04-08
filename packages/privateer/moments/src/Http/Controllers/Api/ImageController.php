@@ -22,6 +22,7 @@ class ImageController extends Controller
             'moment_id' => null,
             'path' => $request->validated()['image']->store('moments', $disk),
             'disk' => $disk,
+            'sort_order' => 0,
         ]);
 
         if (MomentsSupport::altTextEnabled()) {

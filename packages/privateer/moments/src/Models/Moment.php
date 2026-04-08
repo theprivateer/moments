@@ -30,7 +30,9 @@ class Moment extends Model
 
     public function images(): HasMany
     {
-        return $this->hasMany(MomentsSupport::momentImageModel(), 'moment_id');
+        return $this->hasMany(MomentsSupport::momentImageModel(), 'moment_id')
+            ->orderBy('sort_order')
+            ->orderBy('id');
     }
 
     public function renderedBody(): ?string

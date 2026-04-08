@@ -90,7 +90,14 @@ class MomentController extends Controller
             $moment,
             ($validated['body'] ?? '') ?: null,
             $validated['remove_images'] ?? [],
-            $validated['images'] ?? [],
+            array_merge(
+                $moment->images()
+                    ->whereNotIn('id', $validated['remove_images'] ?? [])
+                    ->pluck('id')
+                    ->map(fn ($imageId): array => ['type' => 'existing', 'id' => (int) $imageId])
+                    ->all(),
+                array_map(fn ($file): array => ['type' => 'upload', 'file' => $file], $validated['images'] ?? []),
+            ),
         );
 
         return redirect()->route('moments.index');

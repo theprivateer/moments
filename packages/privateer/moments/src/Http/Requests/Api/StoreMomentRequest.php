@@ -24,6 +24,7 @@ class StoreMomentRequest extends FormRequest
             'images' => ['nullable', 'array'],
             'images.*' => [
                 'integer',
+                'distinct',
                 Rule::exists('moment_images', 'id')->whereNull('moment_id'),
             ],
             'created_at' => ['nullable', 'integer'],

@@ -12,6 +12,7 @@ class MomentImageResource extends JsonResource
         return [
             'id' => $this->id,
             'url' => $this->glideUrl(800),
+            'position' => $this->sort_order,
         ];
     }
 }

@@ -14,7 +14,7 @@ class MomentImage extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['moment_id', 'path', 'disk', 'alt_text'];
+    protected $fillable = ['moment_id', 'path', 'disk', 'sort_order', 'alt_text'];
 
     protected static function newFactory()
     {

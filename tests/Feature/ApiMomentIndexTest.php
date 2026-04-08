@@ -48,7 +48,23 @@ it('includes images for each moment', function () {
         ->assertOk();
 
     expect($response->json('data.0.images'))->toHaveCount(1);
-    expect($response->json('data.0.images.0'))->toHaveKeys(['id', 'url']);
+    expect($response->json('data.0.images.0'))->toHaveKeys(['id', 'url', 'position']);
+});
+
+it('returns images ordered by persisted position', function () {
+    $user = User::factory()->create();
+    $token = $user->createToken('test')->plainTextToken;
+
+    $moment = Moment::factory()->create();
+    $later = MomentImage::factory()->create(['moment_id' => $moment->id, 'sort_order' => 2]);
+    $earlier = MomentImage::factory()->create(['moment_id' => $moment->id, 'sort_order' => 1]);
+
+    $response = $this->withToken($token)
+        ->getJson('/api/v1/moments')
+        ->assertOk();
+
+    expect($response->json('data.0.images.0.id'))->toBe($earlier->id);
+    expect($response->json('data.0.images.1.id'))->toBe($later->id);
 });
 
 it('returns correct pagination metadata', function () {

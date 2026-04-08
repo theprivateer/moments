@@ -6,7 +6,7 @@ It provides:
 
 - a public timeline and per-moment pages
 - Markdown post bodies
-- image uploads with Glide-powered resizing and optional AI-generated alt text
+- image uploads with persisted ordering, Glide-powered resizing, and optional AI-generated alt text
 - RSS, Atom, and JSON feeds
 - a REST API with an OpenAPI description
 - login, account, and API token screens
@@ -174,6 +174,13 @@ That spec describes the built-in API endpoints for:
 - moment creation
 - moment updates
 - moment deletion
+
+Image ordering is preserved everywhere the package renders or returns images:
+
+- the web create and edit forms let authors reorder images before saving
+- `POST /api/v1/moments` treats the `images` array as the final persisted order
+- `PATCH /api/v1/moments/{moment}` accepts `image_order` for reorder-only or combined reorder/add/remove updates
+- image objects returned by the API include a `position` field so clients can round-trip ordering explicitly
 
 ## Development in This Repository
 

@@ -86,6 +86,7 @@ it('stores a newly uploaded image on save', function () {
         ->call('save');
 
     expect($moment->images()->count())->toBe(1);
+    expect($moment->images()->first()->sort_order)->toBe(1);
     Storage::disk('public')->assertExists($moment->images()->first()->path);
 });
 
@@ -109,9 +110,61 @@ it('removes a pending new image from the array', function () {
     $file1 = UploadedFile::fake()->image('a.jpg');
     $file2 = UploadedFile::fake()->image('b.jpg');
 
-    Livewire::actingAs($moment->user)
+    $component = Livewire::actingAs($moment->user)
         ->test('edit-moment', ['moment' => $moment])
-        ->set('newImages', [$file1, $file2])
-        ->call('removeNewImage', 0)
+        ->set('newImages', [$file1, $file2]);
+
+    $handle = $component->get('newImageHandles')[0];
+
+    $component
+        ->call('removeNewImage', $handle)
         ->assertSet('newImages', fn ($images) => count($images) === 1);
+});
+
+it('reorders existing images on save', function () {
+    $moment = Moment::factory()->create(['body' => 'Hello']);
+    $first = MomentImage::factory()->for($moment)->create(['sort_order' => 1]);
+    $second = MomentImage::factory()->for($moment)->create(['sort_order' => 2]);
+
+    $component = Livewire::actingAs($moment->user)
+        ->test('edit-moment', ['moment' => $moment]);
+
+    $firstToken = $component->get('imageOrder')[0];
+
+    $component
+        ->call('moveImage', $firstToken, 'right')
+        ->call('save');
+
+    expect($moment->fresh()->images->pluck('id')->all())->toBe([$second->id, $first->id]);
+});
+
+it('reorders mixed existing and new images while removing one', function () {
+    Storage::fake('public');
+
+    $moment = Moment::factory()->create(['body' => 'Hello']);
+    $first = MomentImage::factory()->for($moment)->create(['sort_order' => 1, 'path' => 'moments/first.jpg', 'disk' => 'public']);
+    $second = MomentImage::factory()->for($moment)->create(['sort_order' => 2, 'path' => 'moments/second.jpg', 'disk' => 'public']);
+    Storage::disk('public')->put('moments/first.jpg', 'first');
+    Storage::disk('public')->put('moments/second.jpg', 'second');
+    $newFile = UploadedFile::fake()->image('new.jpg');
+
+    $component = Livewire::actingAs($moment->user)
+        ->test('edit-moment', ['moment' => $moment])
+        ->set('newImages', [$newFile]);
+
+    $existingToken = $component->get('imageOrder')[0];
+    $newToken = $component->get('imageOrder')[2];
+
+    $component
+        ->set('imageOrder', [$newToken, $existingToken, $component->get('imageOrder')[1]])
+        ->set('imagesToRemove', [$first->id])
+        ->call('save');
+
+    $orderedImages = $moment->fresh()->images;
+
+    expect($orderedImages)->toHaveCount(2);
+    expect($orderedImages->pluck('sort_order')->all())->toBe([1, 2]);
+    expect($orderedImages->first()->path)->toBe($newFile->hashName('moments'));
+    expect($orderedImages->last()->id)->toBe($second->id);
+    expect(MomentImage::find($first->id))->toBeNull();
 });

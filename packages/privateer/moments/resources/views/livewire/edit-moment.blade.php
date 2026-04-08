@@ -31,48 +31,62 @@
             @enderror
         </div>
 
-        @if (count($existingImages))
+        @if (count($this->orderedImageItems))
             <div class="mb-4">
-                <p class="text-sm font-medium text-gray-700 mb-2">Current images</p>
-                <div class="flex flex-wrap gap-3" x-data="{ toRemove: $wire.entangle('imagesToRemove') }">
-                    @foreach ($existingImages as $image)
-                        <div wire:key="existing-{{ $image['id'] }}" class="relative">
-                            <img
-                                src="{{ $image['glideUrl'] }}"
-                                alt="Moment image"
-                                :class="toRemove.includes('{{ $image['id'] }}') ? 'opacity-40' : ''"
-                                class="h-24 w-24 object-cover rounded-md"
-                            >
-                            <label class="absolute inset-0 flex items-center justify-center cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    x-model="toRemove"
-                                    value="{{ $image['id'] }}"
-                                    class="sr-only"
+                <p class="mb-2 text-sm font-medium text-gray-700">Image order</p>
+                <div class="flex flex-wrap gap-3">
+                    @foreach ($this->orderedImageItems as $index => $image)
+                        <div wire:key="ordered-{{ $image['token'] }}" class="w-28">
+                            <div class="relative">
+                                <img
+                                    src="{{ $image['preview_url'] }}"
+                                    alt="Moment image"
+                                    @class(['h-24 w-full rounded-md object-cover', 'opacity-40' => ($image['is_removed'] ?? false)])
                                 >
-                                <span
-                                    :class="toRemove.includes('{{ $image['id'] }}') ? 'bg-red-500/80 opacity-100' : 'bg-black/40 opacity-0 hover:opacity-100'"
-                                    class="text-white text-xs px-1.5 py-0.5 rounded transition-opacity"
-                                >Remove</span>
-                            </label>
+                                @if (($image['is_removed'] ?? false))
+                                    <span class="absolute inset-x-2 bottom-2 rounded bg-red-500/85 px-2 py-1 text-center text-xs font-medium text-white">
+                                        Will be removed
+                                    </span>
+                                @endif
+                            </div>
+                            <div class="mt-2 flex items-center justify-between gap-1">
+                                <button
+                                    type="button"
+                                    wire:click="moveImage('{{ $image['token'] }}', 'left')"
+                                    @disabled($index === 0)
+                                    class="inline-flex h-8 w-8 items-center justify-center rounded-md border border-gray-300 text-sm text-gray-700 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40"
+                                    aria-label="Move image left"
+                                >&larr;</button>
+                                @if ($image['type'] === 'existing')
+                                    <button
+                                        type="button"
+                                        wire:click="toggleImageRemoval({{ $image['id'] }})"
+                                        @class([
+                                            'inline-flex h-8 flex-1 items-center justify-center rounded-md px-2 text-xs font-medium',
+                                            'bg-red-600 text-white hover:bg-red-500' => $image['is_removed'],
+                                            'bg-gray-900 text-white hover:bg-gray-700' => ! $image['is_removed'],
+                                        ])"
+                                    >
+                                        {{ $image['is_removed'] ? 'Keep' : 'Remove' }}
+                                    </button>
+                                @else
+                                    <button
+                                        type="button"
+                                        wire:click="removeNewImage('{{ $image['handle'] }}')"
+                                        class="inline-flex h-8 flex-1 items-center justify-center rounded-md bg-gray-900 px-2 text-xs font-medium text-white hover:bg-gray-700"
+                                    >Remove</button>
+                                @endif
+                                <button
+                                    type="button"
+                                    wire:click="moveImage('{{ $image['token'] }}', 'right')"
+                                    @disabled($index === count($this->orderedImageItems) - 1)
+                                    class="inline-flex h-8 w-8 items-center justify-center rounded-md border border-gray-300 text-sm text-gray-700 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40"
+                                    aria-label="Move image right"
+                                >&rarr;</button>
+                            </div>
                         </div>
                     @endforeach
                 </div>
-            </div>
-        @endif
-
-        @if (count($newImages))
-            <div class="mb-3 flex flex-wrap gap-2">
-                @foreach ($newImages as $index => $image)
-                    <div wire:key="new-{{ $index }}" class="relative">
-                        <img src="{{ $image->temporaryUrl() }}" alt="Pending image" class="h-20 w-20 object-cover rounded-md">
-                        <button
-                            type="button"
-                            wire:click="removeNewImage({{ $index }})"
-                            class="absolute -top-1 -right-1 flex items-center justify-center bg-black/60 text-white rounded-full size-5 text-xs leading-none hover:bg-black/80 cursor-pointer"
-                        >×</button>
-                    </div>
-                @endforeach
             </div>
         @endif
 

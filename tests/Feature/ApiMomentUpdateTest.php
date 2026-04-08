@@ -44,7 +44,7 @@ it('adds pre-uploaded images to a moment', function () {
         ->patchJson("/api/v1/moments/{$moment->id}", ['add_images' => [$image->id]])
         ->assertOk();
 
-    $this->assertDatabaseHas('moment_images', ['id' => $image->id, 'moment_id' => $moment->id]);
+    $this->assertDatabaseHas('moment_images', ['id' => $image->id, 'moment_id' => $moment->id, 'sort_order' => 1]);
 });
 
 it('removes existing images from a moment', function () {
@@ -76,12 +76,13 @@ it('can replace body and images simultaneously', function () {
             'body' => 'New body',
             'add_images' => [$newImage->id],
             'remove_images' => [$oldImage->id],
+            'image_order' => [$newImage->id],
         ])
         ->assertOk()
         ->assertJsonPath('data.body', 'New body');
 
     $this->assertDatabaseMissing('moment_images', ['id' => $oldImage->id]);
-    $this->assertDatabaseHas('moment_images', ['id' => $newImage->id, 'moment_id' => $moment->id]);
+    $this->assertDatabaseHas('moment_images', ['id' => $newImage->id, 'moment_id' => $moment->id, 'sort_order' => 1]);
 });
 
 it('returns 422 when removing all images and body is not provided', function () {
@@ -135,3 +136,73 @@ it('cannot remove images belonging to a different moment', function () {
         ->assertUnprocessable()
         ->assertJsonValidationErrors('remove_images.0');
 });
+
+it('can reorder images without other updates', function () {
+    $user = User::factory()->create();
+    $token = $user->createToken('test')->plainTextToken;
+    $moment = Moment::factory()->for($user)->create(['body' => 'Hello']);
+    $first = MomentImage::factory()->create(['moment_id' => $moment->id, 'sort_order' => 1]);
+    $second = MomentImage::factory()->create(['moment_id' => $moment->id, 'sort_order' => 2]);
+
+    $response = $this->withToken($token)
+        ->patchJson("/api/v1/moments/{$moment->id}", ['image_order' => [$second->id, $first->id]])
+        ->assertOk();
+
+    expect($moment->fresh()->images->pluck('id')->all())->toBe([$second->id, $first->id]);
+    expect($response->json('data.images.0.position'))->toBe(1);
+    expect($response->json('data.images.1.position'))->toBe(2);
+});
+
+it('can add remove and reorder images in one request', function () {
+    $user = User::factory()->create();
+    $token = $user->createToken('test')->plainTextToken;
+    $moment = Moment::factory()->for($user)->create(['body' => 'Hello']);
+    $first = MomentImage::factory()->create(['moment_id' => $moment->id, 'sort_order' => 1]);
+    $second = MomentImage::factory()->create(['moment_id' => $moment->id, 'sort_order' => 2]);
+    $third = MomentImage::factory()->create(['moment_id' => null]);
+
+    $this->withToken($token)
+        ->patchJson("/api/v1/moments/{$moment->id}", [
+            'add_images' => [$third->id],
+            'remove_images' => [$first->id],
+            'image_order' => [$third->id, $second->id],
+        ])
+        ->assertOk()
+        ->assertJsonPath('data.images.0.id', $third->id)
+        ->assertJsonPath('data.images.0.position', 1)
+        ->assertJsonPath('data.images.1.id', $second->id)
+        ->assertJsonPath('data.images.1.position', 2);
+
+    expect($moment->fresh()->images->pluck('id')->all())->toBe([$third->id, $second->id]);
+});
+
+it('validates image_order payloads', function (string $scenario) {
+    $user = User::factory()->create();
+    $token = $user->createToken('test')->plainTextToken;
+    $moment = Moment::factory()->for($user)->create(['body' => 'Hello']);
+    $first = MomentImage::factory()->create(['moment_id' => $moment->id, 'sort_order' => 1]);
+    $second = MomentImage::factory()->create(['moment_id' => $moment->id, 'sort_order' => 2]);
+    $third = MomentImage::factory()->create(['moment_id' => null]);
+
+    $payload = match ($scenario) {
+        'duplicate ids' => ['image_order' => [$first->id, $first->id]],
+        'missing remaining image' => ['image_order' => [$first->id]],
+        'includes removed image' => [
+            'remove_images' => [$first->id],
+            'image_order' => [$first->id, $second->id],
+        ],
+        'includes unattached image without add_images' => [
+            'image_order' => [$third->id, $first->id, $second->id],
+        ],
+    };
+
+    $this->withToken($token)
+        ->patchJson("/api/v1/moments/{$moment->id}", $payload)
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors('image_order');
+})->with([
+    'duplicate ids',
+    'missing remaining image',
+    'includes removed image',
+    'includes unattached image without add_images',
+]);

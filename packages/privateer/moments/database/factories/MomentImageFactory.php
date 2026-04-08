@@ -19,6 +19,7 @@ class MomentImageFactory extends Factory
             'moment_id' => Moment::factory(),
             'path' => 'moments/fake.jpg',
             'disk' => 'public',
+            'sort_order' => 1,
             'alt_text' => null,
         ];
     }
