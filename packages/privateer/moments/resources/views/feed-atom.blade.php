@@ -13,7 +13,7 @@
     @foreach ($moments as $moment)
     <entry>
         <id>{{ route('moments.show', $moment) }}</id>
-        <title>{{ $moment->body ? Str::limit(strip_tags($moment->renderedBody()), 60) : 'Moment - '.$moment->created_at->format('j M Y') }}</title>
+        <title>{{ $moment->feedTitle() }}</title>
         <published>{{ $moment->created_at->toAtomString() }}</published>
         <updated>{{ $moment->updated_at->toAtomString() }}</updated>
         <link rel="alternate" href="{{ route('moments.show', $moment) }}"/>

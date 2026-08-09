@@ -28,3 +28,12 @@ it('includes image-only moments with a date-based title in atom feed', function 
         ->assertSuccessful()
         ->assertSee('Moment - '.$moment->created_at->format('j M Y'), false);
 });
+
+it('escapes entities in atom entry titles exactly once', function () {
+    Moment::factory()->create(['body' => 'Tom & Jerry']);
+
+    $content = $this->get('/feed/atom')->assertSuccessful()->getContent();
+
+    expect($content)->toContain('<title>Tom &amp; Jerry</title>')
+        ->and($content)->not->toContain('&amp;amp;');
+});

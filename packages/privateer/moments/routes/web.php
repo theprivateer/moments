@@ -37,5 +37,7 @@ Route::middleware(config('moments.authenticated_middleware', ['auth']))->group(f
 
 Route::middleware(config('moments.guest_middleware', ['guest']))->group(function (): void {
     Route::get('/login', [LoginController::class, 'create'])->name('login');
-    Route::post('/login', [LoginController::class, 'store'])->name('login.store');
+    Route::post('/login', [LoginController::class, 'store'])
+        ->middleware(config('moments.login_middleware', ['throttle:6,1']))
+        ->name('login.store');
 });

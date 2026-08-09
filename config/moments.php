@@ -96,11 +96,16 @@ return [
     | authenticated routes, guest-only routes, and API routes. Override them
     | if the host app needs custom auth, session, or API middleware.
     |
+    | The login stack is applied to the login POST route only, so throttling
+    | limits password attempts without also limiting how often the login page
+    | itself may be viewed. Both throttles key on IP address.
+    |
     */
     'web_middleware' => ['web'],
     'authenticated_middleware' => ['auth'],
     'guest_middleware' => ['guest'],
-    'api_middleware' => ['api', 'auth:sanctum'],
+    'login_middleware' => ['throttle:6,1'],
+    'api_middleware' => ['api', 'throttle:60,1', 'auth:sanctum'],
 
     /*
     |--------------------------------------------------------------------------

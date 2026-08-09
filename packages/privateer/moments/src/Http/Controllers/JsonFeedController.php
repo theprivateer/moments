@@ -3,7 +3,6 @@
 namespace Privateer\Moments\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Str;
 use Privateer\Moments\Support\Moments as MomentsSupport;
 
 class JsonFeedController extends Controller
@@ -24,10 +23,6 @@ class JsonFeedController extends Controller
             'home_page_url' => route('moments.index'),
             'feed_url' => route('feed.json'),
             'items' => $moments->map(function (object $moment): array {
-                $title = $moment->body
-                    ? Str::limit(strip_tags($moment->renderedBody()), 60)
-                    : 'Moment - '.$moment->created_at->format('j M Y');
-
                 $contentHtml = '';
 
                 foreach ($moment->images as $image) {
@@ -41,7 +36,7 @@ class JsonFeedController extends Controller
                 $item = [
                     'id' => route('moments.show', $moment),
                     'url' => route('moments.show', $moment),
-                    'title' => $title,
+                    'title' => $moment->feedTitle(),
                     'content_html' => $contentHtml,
                     'date_published' => $moment->created_at->toIso8601String(),
                     'date_modified' => $moment->updated_at->toIso8601String(),

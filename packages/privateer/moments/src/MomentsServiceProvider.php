@@ -13,6 +13,7 @@ use Privateer\Moments\Console\Commands\GlideKeyCommand;
 use Privateer\Moments\Console\Commands\InstallCommand;
 use Privateer\Moments\Livewire\CreateMoment;
 use Privateer\Moments\Livewire\EditMoment;
+use Privateer\Moments\Markdown\HashtagMarkdownRenderer;
 use Privateer\Moments\Policies\MomentPolicy;
 use Privateer\Moments\Support\Moments as MomentsSupport;
 
@@ -21,6 +22,10 @@ class MomentsServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->mergeConfigFrom(__DIR__.'/../config/moments.php', 'moments');
+
+        // Building the CommonMark environment is expensive, and every rendered
+        // moment on a timeline or feed page resolves this renderer.
+        $this->app->singleton(HashtagMarkdownRenderer::class);
     }
 
     public function boot(): void

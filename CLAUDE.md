@@ -124,7 +124,7 @@ All three formats are linked in `layouts/app.blade.php` via `<link rel="alternat
 
 **Image URLs in feeds:** Use `$image->url()` (not `$image->glideUrl()`) — feed readers are external clients that cannot resolve signed Glide URLs.
 
-**Feed title logic:** `$moment->body ? Str::limit(strip_tags($moment->renderedBody()), 60) : 'Moment - '.$moment->created_at->format('j M Y')`
+**Feed title logic:** all three formats call `$moment->feedTitle()`. It strips tags from the rendered body, **decodes HTML entities** (the rendered body is already escaped, so leaving them encoded double-escapes once Blade or JSON encoding runs), squishes whitespace to one line, and limits to 60 chars. Bodyless moments fall back to `'Moment - '.$moment->created_at->format('j M Y')`. Never re-derive this per feed — reuse the method so the formats stay in sync.
 
 The Atom feed also passes `$user` (via `User::first()`) to the view for the `<author>` element.
 
@@ -150,6 +150,10 @@ Moments uses `spatie/laravel-tags` to tag posts with hashtags extracted from `bo
 
 - **Web** — session-based (`middleware('auth')`), managed by `Auth\LoginController`
 - **API** — Sanctum personal access tokens (`middleware('auth:sanctum')`); tokens created/revoked at `/account`
+
+**Rate limiting** — `config('moments.login_middleware')` (`throttle:6,1`) is applied to the login POST route only, so the login *page* stays unthrottled. `config('moments.api_middleware')` includes `throttle:60,1`. Both live in the host's published `config/moments.php`, which overrides the package defaults — change both files together. Laravel's middleware priority sorts `AuthenticatesRequests` ahead of `ThrottleRequests`, so the API limit bounds authenticated abuse; anonymous callers are rejected by auth first (pinned in `tests/Feature/RateLimitTest.php`).
+
+**Ownership checks** — `MomentPolicy` and `TokenController` cast **both** sides of the id comparison. PDO returns bigint columns as strings on PostgreSQL and on MySQL with emulated prepares; SQLite does not, so an uncast strict comparison passes tests and fails in production.
 
 ===
 

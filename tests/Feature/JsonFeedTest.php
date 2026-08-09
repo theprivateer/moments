@@ -37,3 +37,11 @@ it('includes image field for moments with images in json feed', function () {
     $item = collect($response->json('items'))->firstWhere('id', route('moments.show', $moment));
     expect($item)->toHaveKey('image');
 });
+
+it('returns decoded entities in json feed titles', function () {
+    Moment::factory()->create(['body' => 'Tom & Jerry']);
+
+    $this->get('/feed/json')
+        ->assertSuccessful()
+        ->assertJsonPath('items.0.title', 'Tom & Jerry');
+});

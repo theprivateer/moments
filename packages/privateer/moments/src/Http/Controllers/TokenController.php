@@ -19,7 +19,7 @@ class TokenController extends Controller
 
     public function destroy(Request $request, PersonalAccessToken $token): RedirectResponse
     {
-        abort_if($token->tokenable_id !== $request->user()->id, 403);
+        abort_if((int) $token->tokenable_id !== (int) $request->user()->id, 403);
 
         $token->delete();
 

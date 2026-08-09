@@ -3,7 +3,14 @@
 Instagram → Moments importer
 Reads posts_1.json and uploads historic Instagram posts to the Moments API.
 
+Configuration (environment variables):
+    MOMENTS_API_BASE   Base URL of the Moments site, e.g. https://moments.example.com
+    MOMENTS_TOKEN      Sanctum personal access token, created at /account
+
 Usage:
+    export MOMENTS_API_BASE="https://moments.example.com"
+    export MOMENTS_TOKEN="..."
+
     python3 upload_to_moments.py            # upload all posts
     python3 upload_to_moments.py --limit 3  # upload first 3 posts (for testing)
     python3 upload_to_moments.py --resume   # skip posts already logged as uploaded
@@ -21,16 +28,11 @@ import requests
 
 # ── Configuration ─────────────────────────────────────────────────────────────
 
-API_BASE  = "https://moments.philstephens.com"
-TOKEN     = "3|XEs5e1UKEW4cLuvDtxirZnc50hnbdnReDgiwmhKQc899bbc2"
+API_BASE    = os.environ.get("MOMENTS_API_BASE", "").rstrip("/")
+TOKEN       = os.environ.get("MOMENTS_TOKEN", "")
 POSTS_FILE  = os.path.join(os.path.dirname(__file__), "posts_1.json")
 MEDIA_ROOT  = os.path.dirname(__file__)          # images are relative to this dir
 LOG_FILE    = os.path.join(os.path.dirname(__file__), "upload_log.json")
-
-HEADERS = {
-    "Authorization": f"Bearer {TOKEN}",
-    "Accept": "application/json",
-}
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
 
@@ -88,6 +90,12 @@ def main():
                         help="Skip posts already recorded in upload_log.json")
     args = parser.parse_args()
 
+    missing = [name for name, value in (("MOMENTS_API_BASE", API_BASE),
+                                        ("MOMENTS_TOKEN", TOKEN)) if not value]
+    if missing:
+        sys.exit(f"Missing required environment variable(s): {', '.join(missing)}. "
+                 "See the module docstring for setup instructions.")
+
     with open(POSTS_FILE) as f:
         all_posts = json.load(f)
 
@@ -95,7 +103,10 @@ def main():
     already_uploaded = set(log["uploaded"]) if args.resume else set()
 
     session = requests.Session()
-    session.headers.update(HEADERS)
+    session.headers.update({
+        "Authorization": f"Bearer {TOKEN}",
+        "Accept": "application/json",
+    })
 
     # Build eligible post list (skip video-only posts)
     eligible = []

@@ -333,3 +333,22 @@ it('renders gallery markup and a lightbox gallery for images on the show page', 
         ->assertSee('alt="Moment image"', false)
         ->assertSee('id="lightbox"', false);
 });
+
+it('builds a feed title from the plain text body', function () {
+    $moment = Moment::factory()->create(['body' => '**Bold** & _italic_']);
+
+    expect($moment->feedTitle())->toBe('Bold & italic');
+});
+
+it('falls back to a date-based feed title without a body', function () {
+    $moment = Moment::factory()->withoutBody()->create();
+
+    expect($moment->feedTitle())->toBe('Moment - '.$moment->created_at->format('j M Y'));
+});
+
+it('truncates a long feed title', function () {
+    $moment = Moment::factory()->create(['body' => str_repeat('word ', 40)]);
+
+    expect($moment->feedTitle())->toEndWith('...')
+        ->and(mb_strlen($moment->feedTitle()))->toBeLessThanOrEqual(63);
+});

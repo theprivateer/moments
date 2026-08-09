@@ -28,3 +28,20 @@ it('includes image-only moments with a date-based title', function () {
         ->assertSuccessful()
         ->assertSee('Moment - '.$moment->created_at->format('j M Y'), false);
 });
+
+it('escapes entities in item titles exactly once', function () {
+    Moment::factory()->create(['body' => 'Tom & Jerry']);
+
+    $content = $this->get('/feed')->assertSuccessful()->getContent();
+
+    expect($content)->toContain('<title>Tom &amp; Jerry</title>')
+        ->and($content)->not->toContain('&amp;amp;');
+});
+
+it('renders a single-line title for a multi-paragraph body', function () {
+    Moment::factory()->create(['body' => "First paragraph\n\nSecond paragraph"]);
+
+    $content = $this->get('/feed')->assertSuccessful()->getContent();
+
+    expect($content)->toContain('<title>First paragraph Second paragraph</title>');
+});
