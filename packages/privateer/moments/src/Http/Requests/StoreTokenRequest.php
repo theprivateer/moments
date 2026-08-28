@@ -15,6 +15,7 @@ class StoreTokenRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
+            'role' => ['required', 'in:read-only,read-write'],
         ];
     }
 }

@@ -167,6 +167,13 @@ The package includes an OpenAPI 3.1 description at:
 
 - [`openapi.yaml`](./openapi.yaml)
 
+API authentication uses Sanctum personal access tokens created from the account screen. Each new token has one of two roles:
+
+- **Read only** grants `moments:read` and can call `GET /api/v1/moments`
+- **Read & write** grants both `moments:read` and `moments:write` and can call every built-in API endpoint
+
+The account screen defaults to Read only. Existing tokens created before roles were introduced have Sanctum's wildcard ability and remain full-access. Revoke and replace those tokens if they should no longer be able to write.
+
 That spec describes the built-in API endpoints for:
 
 - image upload

@@ -3,9 +3,11 @@
 namespace Privateer\Moments;
 
 use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Sanctum\Http\Middleware\CheckAbilities;
 use Livewire\Livewire;
 use Privateer\Moments\Console\Commands\DeleteOrphanImagesCommand;
 use Privateer\Moments\Console\Commands\GenerateAltTextCommand;
@@ -34,6 +36,7 @@ class MomentsServiceProvider extends ServiceProvider
         $this->registerCommands();
         $this->registerLivewire();
         $this->registerPolicies();
+        $this->registerMiddleware();
         $this->registerRoutes();
         $this->registerSchedule();
 
@@ -87,6 +90,11 @@ class MomentsServiceProvider extends ServiceProvider
     protected function registerPolicies(): void
     {
         Gate::policy(MomentsSupport::momentModel(), MomentPolicy::class);
+    }
+
+    protected function registerMiddleware(): void
+    {
+        $this->app->make(Router::class)->aliasMiddleware('abilities', CheckAbilities::class);
     }
 
     protected function registerRoutes(): void

@@ -24,6 +24,7 @@ paths:
   /api/v1/images:
     post:
       summary: Upload an image
+      description: Requires a token with the `moments:write` ability.
       tags: [images]
       requestBody:
         required: true
@@ -50,6 +51,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Token does not have the `moments:write` ability
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '422':
           description: Validation failed
           content:
@@ -60,6 +67,7 @@ paths:
   /api/v1/moments:
     get:
       summary: List moments (timeline)
+      description: Requires a token with the `moments:read` ability.
       tags: [moments]
       parameters:
         - name: page
@@ -83,8 +91,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Token does not have the `moments:read` ability
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
     post:
       summary: Create a moment
+      description: Requires a token with the `moments:write` ability.
       tags: [moments]
       requestBody:
         required: true
@@ -126,6 +141,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Token does not have the `moments:write` ability
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '422':
           description: Validation failed
           content:
@@ -136,6 +157,7 @@ paths:
   /api/v1/moments/{moment}:
     patch:
       summary: Update a moment
+      description: Requires a token with the `moments:write` ability.
       tags: [moments]
       parameters:
         - name: moment
@@ -192,7 +214,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         '403':
-          description: Forbidden
+          description: Token lacks `moments:write`, or the moment is not owned by the token owner
           content:
             application/json:
               schema:
@@ -211,6 +233,7 @@ paths:
                 $ref: '#/components/schemas/ValidationErrorResponse'
     delete:
       summary: Delete a moment
+      description: Requires a token with the `moments:write` ability.
       tags: [moments]
       parameters:
         - name: moment
@@ -229,7 +252,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         '403':
-          description: Forbidden
+          description: Token lacks `moments:write`, or the moment is not owned by the token owner
           content:
             application/json:
               schema:
@@ -247,6 +270,9 @@ components:
       type: http
       scheme: bearer
       bearerFormat: Sanctum
+      description: |
+        Sanctum personal access token. Timeline reads require `moments:read`.
+        Image uploads and moment mutations require `moments:write`.
 
   schemas:
     MomentImageResponse:

@@ -117,9 +117,9 @@
 
         <div class="mb-6">
             <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Create API token</h3>
-            <form method="POST" action="{{ route('tokens.store') }}" class="flex gap-3">
+            <form method="POST" action="{{ route('tokens.store') }}" class="flex flex-col gap-3 sm:flex-row sm:items-start">
                 @csrf
-                <div class="flex-1">
+                <div class="sm:flex-1">
                     <input
                         type="text"
                         name="name"
@@ -131,7 +131,21 @@
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
-                <button type="submit" class="bg-gray-900 text-white px-4 py-2 rounded-md text-sm hover:bg-gray-700">
+                <div class="sm:w-44">
+                    <label for="token-role" class="sr-only">Token access</label>
+                    <select
+                        id="token-role"
+                        name="role"
+                        class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm bg-white focus:outline-hidden focus:ring-2 focus:ring-gray-400"
+                    >
+                        <option value="read-only" @selected(old('role', 'read-only') === 'read-only')>Read only</option>
+                        <option value="read-write" @selected(old('role') === 'read-write')>Read &amp; write</option>
+                    </select>
+                    @error('role')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+                <button type="submit" class="bg-gray-900 text-white px-4 py-2 rounded-md text-sm whitespace-nowrap hover:bg-gray-700">
                     Create
                 </button>
             </form>
@@ -142,7 +156,12 @@
             @forelse ($tokens as $token)
                 <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100 last:border-b-0">
                     <div>
-                        <p class="text-sm font-medium text-gray-900">{{ $token->name }}</p>
+                        <div class="flex items-center gap-2">
+                            <p class="text-sm font-medium text-gray-900">{{ $token->name }}</p>
+                            <span class="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600">
+                                {{ $token->can('moments:write') ? 'Read & write' : 'Read only' }}
+                            </span>
+                        </div>
                         <p class="text-xs text-gray-400 mt-0.5">
                             Created {{ $token->created_at->diffForHumans() }}
                             &middot;

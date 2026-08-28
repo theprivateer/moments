@@ -11,7 +11,12 @@ class TokenController extends Controller
 {
     public function store(StoreTokenRequest $request): RedirectResponse
     {
-        $token = $request->user()->createToken($request->validated()['name']);
+        $validated = $request->validated();
+        $abilities = match ($validated['role']) {
+            'read-only' => ['moments:read'],
+            'read-write' => ['moments:read', 'moments:write'],
+        };
+        $token = $request->user()->createToken($validated['name'], $abilities);
 
         return redirect()->route('account.show')
             ->with('plain_text_token', $token->plainTextToken);

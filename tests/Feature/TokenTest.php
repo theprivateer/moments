@@ -21,7 +21,7 @@ it('creates a token with a name', function () {
     $user = User::factory()->create();
 
     $this->actingAs($user)
-        ->post('/tokens', ['name' => 'My App'])
+        ->post('/tokens', ['name' => 'My App', 'role' => 'read-only'])
         ->assertRedirect('/account');
 
     $this->assertDatabaseHas('personal_access_tokens', [
@@ -29,13 +29,25 @@ it('creates a token with a name', function () {
         'tokenable_type' => User::class,
         'name' => 'My App',
     ]);
+
+    expect($user->tokens()->first()->abilities)->toBe(['moments:read']);
+});
+
+it('creates a read and write token', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->post('/tokens', ['name' => 'Publishing App', 'role' => 'read-write'])
+        ->assertRedirect('/account');
+
+    expect($user->tokens()->first()->abilities)->toBe(['moments:read', 'moments:write']);
 });
 
 it('flashes the plain text token to the session once', function () {
     $user = User::factory()->create();
 
     $this->actingAs($user)
-        ->post('/tokens', ['name' => 'My App'])
+        ->post('/tokens', ['name' => 'My App', 'role' => 'read-only'])
         ->assertRedirect('/account')
         ->assertSessionHas('plain_text_token');
 });
@@ -44,8 +56,41 @@ it('requires a name when creating a token', function () {
     $user = User::factory()->create();
 
     $this->actingAs($user)
-        ->post('/tokens', ['name' => ''])
+        ->post('/tokens', ['name' => '', 'role' => 'read-only'])
         ->assertSessionHasErrors('name');
+});
+
+it('requires a valid token role', function (?string $role) {
+    $user = User::factory()->create();
+
+    $payload = ['name' => 'My App'];
+
+    if ($role !== null) {
+        $payload['role'] = $role;
+    }
+
+    $this->actingAs($user)
+        ->post('/tokens', $payload)
+        ->assertSessionHasErrors('role');
+})->with([
+    'missing' => null,
+    'unknown' => 'administrator',
+]);
+
+it('shows token roles on the account page', function () {
+    $user = User::factory()->create();
+    $user->createToken('Reader', ['moments:read']);
+    $user->createToken('Publisher', ['moments:read', 'moments:write']);
+    $user->createToken('Legacy');
+
+    $this->actingAs($user)
+        ->get('/account')
+        ->assertOk()
+        ->assertSeeText('Reader')
+        ->assertSeeText('Publisher')
+        ->assertSeeText('Legacy')
+        ->assertSeeText('Read only')
+        ->assertSeeText('Read & write');
 });
 
 it('can delete its own token', function () {

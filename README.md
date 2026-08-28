@@ -136,7 +136,12 @@ In this host app, the package API is mounted at:
 - `PATCH /api/v1/moments/{moment}`
 - `DELETE /api/v1/moments/{moment}`
 
-API authentication uses Sanctum personal access tokens managed through the account UI.
+API authentication uses Sanctum personal access tokens managed through the account UI. New tokens can be issued as:
+
+- **Read only**, with `moments:read`, for `GET /api/v1/moments`
+- **Read & write**, with `moments:read` and `moments:write`, for reading, image uploads and moment mutations
+
+Read only is the default. Tokens created before role support use Sanctum's wildcard ability and retain full read/write access until they are revoked.
 
 For image ordering:
 
