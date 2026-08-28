@@ -3,17 +3,16 @@
         "claude_code",
         "codex"
     ],
+    "cloud": false,
     "guidelines": true,
     "mcp": true,
     "nightwatch_mcp": false,
-    "packages": [
-        "laravel/ai"
-    ],
     "sail": false,
     "skills": [
+        "infer-conventions",
+        "ai-sdk-development",
         "laravel-best-practices",
-        "pest-testing",
-        "tailwindcss-development",
-        "ai-sdk-development"
+        "testing-best-practices",
+        "tailwindcss-development"
     ]
 }
